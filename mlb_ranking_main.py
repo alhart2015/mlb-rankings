@@ -5,24 +5,35 @@ Roughly based on ELO? Idk.
 '''
 import argparse
 
+from Game import Game
+
 def read_game_data(filename):
 
-    all_rows = []
+    all_games = []
 
     with open(filename, 'r') as f:
         for row in f:
             split_row = row.split(",")
+            parsed_game = Game(split_row)
 
-            all_rows.append(split_row)
+            all_games.append(parsed_game)
 
-    return all_rows
+    return all_games
 
 def main():
-    raw_data = read_game_data('data/GL2017.txt')
-    for i in range(2):
-        print raw_data[i], len(raw_data[i])
+    game_data = read_game_data('data/GL2017.txt')
 
-    #blah blah blah
+    teams = {}
+
+    for game in game_data:
+        if game.home_team not in teams:
+            teams[game.home_team] = 1
+        if game.away_team not in teams:
+            teams[game.away_team] = 1
+
+    for team in sorted(teams.keys()):
+        print team
+
 
 if __name__ == '__main__':
     main()
