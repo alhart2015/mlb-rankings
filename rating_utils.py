@@ -1,4 +1,19 @@
 '''
+A collection of all of the ways we'll try and calculate ratings.
+'''
+
+# keep track of all the formulas we're using
+VANILLA = 0
+
+def update(winning_team, losing_team, game, formula):
+    if formula == VANILLA:
+        (winning_team, losing_team) = vanilla_elo(winning_team, losing_team, game)
+    else:
+        raise IllegalArgumentError("Unexpected formula type passed to rating_utils.update(): {0}".format(formula))
+
+    return (winning_team, losing_team)
+
+'''
 For starters we're gonna go with vanilla elo, as presented by 
 https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
 This doesn't factor in things like score difference, but I'll
@@ -10,7 +25,7 @@ implement that later.
 
 @return a (winning_team, losing_team) tuple with each team's elo updated
 '''
-def update_with_vanilla_elo(winning_team, losing_team, game):
+def vanilla_elo(winning_team, losing_team, game):
 
     k = 32
 
