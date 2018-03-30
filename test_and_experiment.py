@@ -1,8 +1,7 @@
 '''
-The goal is to develop a power rankings for MLB.
-
-Roughly based on ELO? Idk.
+This is a space for me to mess around and try things out.
 '''
+
 from Game import Game
 from Team import Team
 
@@ -63,6 +62,11 @@ def create_league_from_games(game_data):
         home_team = teams[home_team_name]
         away_team = teams[away_team_name]
 
+        # print 'Before update'
+        # print game
+        # print home_team
+        # print away_team
+
         # update the records and ratings of these teams
         if game.home_team_won():
             home_team.wins += 1
@@ -80,6 +84,10 @@ def create_league_from_games(game_data):
                                                          game,
                                                          rating_utils.augmented_elo)
 
+        # print 'After update'
+        # print game
+        # print home_team
+        # print away_team
 
         teams[home_team_name] = home_team
         teams[away_team_name] = away_team
@@ -91,8 +99,20 @@ def main():
 
     teams = create_league_from_games(game_data)
 
+    # for game in game_data:
+    #     if game.home_team not in teams:
+    #         teams[game.home_team] = 0
+    #     if game.away_team not in teams:
+    #         teams[game.away_team] = 0
+
+    #     teams[game.home_team] += 1
+    #     teams[game.away_team] += 1
+
     for team in sorted(teams.iteritems(), key = lambda (k,v): (v.rating, k), reverse = True):
         print team
+
+    # for game in game_data[:10]:
+    #     print game, game.home_team_won()
 
 
 if __name__ == '__main__':
