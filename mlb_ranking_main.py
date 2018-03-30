@@ -75,7 +75,7 @@ def create_league_from_games(game_data):
             (home_team, away_team) = rating_utils.update(home_team, 
                                                          away_team, 
                                                          game, 
-                                                         rating_utils.VANILLA)
+                                                         rating_utils.augmented_elo)
 
         else:
             home_team.losses += 1
@@ -83,7 +83,7 @@ def create_league_from_games(game_data):
             (away_team, home_team) = rating_utils.update(away_team, 
                                                          home_team, 
                                                          game,
-                                                         rating_utils.VANILLA)
+                                                         rating_utils.augmented_elo)
 
         # print 'After update'
         # print game
