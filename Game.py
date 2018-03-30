@@ -3,6 +3,8 @@ from retrosheet_schema import VISITING_TEAM
 from retrosheet_schema import HOME_TEAM_SCORE
 from retrosheet_schema import VISITING_TEAM_SCORE
 
+# this is a lookup to translate the nicknames in the dataset into
+# the actual names and cities of the teams
 TEAM_NICKNAMES = {
     "ANA" : "Los Angeles Angels",
     "ARI" : "Arizona Diamondbacks",
