@@ -42,6 +42,17 @@ def create_league_from_games(game_data):
             away_team = Team(away_team_name)
             teams[away_team_name] = away_team
 
+        home_team = teams[home_team_name]
+        away_team = teams[away_team_name]
+
+        # update the records of these teams
+        if game.home_team_won():
+            home_team.wins += 1
+            away_team.losses += 1
+        else:
+            home_team.losses += 1
+            away_team.wins += 1
+
     return teams
 
 def main():
@@ -61,8 +72,8 @@ def main():
     for team in sorted(teams.keys()):
         print team, teams[team]
 
-    for game in game_data[:3]:
-        print game
+    # for game in game_data[:10]:
+    #     print game, game.home_team_won()
 
 
 if __name__ == '__main__':

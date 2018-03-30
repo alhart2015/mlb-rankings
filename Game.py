@@ -41,8 +41,8 @@ class Game(object):
     def __init__(self, home_team, away_team, home_score, away_score):
         self.home_team = home_team
         self.away_team = away_team
-        self.home_score = home_score
-        self.away_score = away_score
+        self.home_score = int(home_score)
+        self.away_score = int(away_score)
 
     def __init__(self, split_row):
         raw_home_team = split_row[HOME_TEAM]
@@ -50,8 +50,8 @@ class Game(object):
         raw_away_team = split_row[VISITING_TEAM]
         self.away_team = TEAM_NICKNAMES[raw_away_team]
 
-        self.home_score = split_row[HOME_TEAM_SCORE]
-        self.away_score = split_row[VISITING_TEAM_SCORE]
+        self.home_score = int(split_row[HOME_TEAM_SCORE])
+        self.away_score = int(split_row[VISITING_TEAM_SCORE])
 
     def __str__(self):
         return 'Game({0} @ {1}, {2}-{3})'.format(
@@ -60,3 +60,7 @@ class Game(object):
             self.away_score, 
             self.home_score
         )
+
+    def home_team_won(self):
+        '''Returns true if the home team won this game'''
+        return self.home_score > self.away_score
