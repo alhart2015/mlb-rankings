@@ -86,13 +86,16 @@ def create_league_from_games(game_data):
 
     return teams
 
+def print_sorted_by_rating_desc(teams):
+    for team in sorted(teams.iteritems(), key = lambda (k,v): (v.rating, k), reverse = True):
+        print team
+
 def main():
     game_data = read_game_data('data/GL2017.txt')
 
     teams = create_league_from_games(game_data)
 
-    for team in sorted(teams.iteritems(), key = lambda (k,v): (v.rating, k), reverse = True):
-        print team
+    print_sorted_by_rating_desc(teams)
 
 
 if __name__ == '__main__':

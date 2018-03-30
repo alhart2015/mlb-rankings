@@ -5,33 +5,11 @@ This is a space for me to mess around and try things out.
 from Game import Game
 from Team import Team
 
+import mlb_ranking_main
 import rating_utils
 
-'''
-Take the raw game data file, open it, pull out the fields you care about,
-clean it up a bit, and turn those into Game objects
+import matplotlib.pyplot as plt
 
-@param filename - the name of the raw data file from retrosheet
-
-@return a list of Game objects
-'''
-def read_game_data(filename):
-
-    all_games = []
-
-    with open(filename, 'r') as f:
-        for row in f:
-            # split on comma
-            split_row = row.split(",")
-
-            # most of these fields are in quotes. get rid of that
-            clean_row = [field.replace('"', '') for field in split_row]
-            # convert to Game object
-            parsed_game = Game(clean_row)
-            # store
-            all_games.append(parsed_game)
-
-    return all_games
 
 '''
 Given a list of every single game played, group those into teams and update
@@ -39,11 +17,12 @@ the wins, losses, and rating of the team. Note that shit will get weird if
 you give this function more than one season's worth of data.
 
 @param game_data - a list of all the Games in a season
+@param formula - one of the formulas in rating_utils
 
 @return a dictionary of team_name (string) -> Team object with records and
     ratings current
 '''
-def create_league_from_games(game_data):
+def create_league_from_games(game_data, formula):
     teams = {}
 
     for game in game_data:
@@ -74,7 +53,7 @@ def create_league_from_games(game_data):
             (home_team, away_team) = rating_utils.update(home_team, 
                                                          away_team, 
                                                          game, 
-                                                         rating_utils.augmented_elo)
+                                                         formula)
 
         else:
             home_team.losses += 1
@@ -82,7 +61,7 @@ def create_league_from_games(game_data):
             (away_team, home_team) = rating_utils.update(away_team, 
                                                          home_team, 
                                                          game,
-                                                         rating_utils.augmented_elo)
+                                                         formula)
 
         # print 'After update'
         # print game
@@ -95,21 +74,14 @@ def create_league_from_games(game_data):
     return teams
 
 def main():
-    game_data = read_game_data('data/GL2017.txt')
+    game_data = mlb_ranking_main.read_game_data('data/GL2017.txt')
 
-    teams = create_league_from_games(game_data)
+    basic_elo_teams = create_league_from_games(game_data, rating_utils.vanilla_elo)
+    mlb_ranking_main.print_sorted_by_rating_desc(basic_elo_teams)
 
-    # for game in game_data:
-    #     if game.home_team not in teams:
-    #         teams[game.home_team] = 0
-    #     if game.away_team not in teams:
-    #         teams[game.away_team] = 0
-
-    #     teams[game.home_team] += 1
-    #     teams[game.away_team] += 1
-
-    for team in sorted(teams.iteritems(), key = lambda (k,v): (v.rating, k), reverse = True):
-        print team
+    print "-----------------------------"
+    score_elo_teams = create_league_from_games(game_data, rating_utils.augmented_elo)
+    mlb_ranking_main.print_sorted_by_rating_desc(score_elo_teams)
 
     # for game in game_data[:10]:
     #     print game, game.home_team_won()
