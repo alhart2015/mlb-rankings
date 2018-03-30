@@ -22,7 +22,7 @@ def main():
     for i in range(2):
         print raw_data[i], len(raw_data[i])
 
-    #blah
+    #blah blah
 
 if __name__ == '__main__':
     main()
