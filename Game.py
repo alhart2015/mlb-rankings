@@ -44,6 +44,13 @@ class Game(object):
         self.home_score = int(home_score)
         self.away_score = int(away_score)
 
+    '''
+    Constructor when you only want to pass in a split_row.
+
+    @param split_row - a list of Strings corresponding to one row from the
+                        retrosheet file, split on commas and cleaned of
+                        all the excess quotation marks
+    '''
     def __init__(self, split_row):
         raw_home_team = split_row[HOME_TEAM]
         self.home_team = TEAM_NICKNAMES[raw_home_team]
@@ -53,14 +60,31 @@ class Game(object):
         self.home_score = int(split_row[HOME_TEAM_SCORE])
         self.away_score = int(split_row[VISITING_TEAM_SCORE])
 
+    '''
+    Get a string representation of the Game object. We do this so we can
+    call 'print' on a Game and get something useful instead of something
+    like "Game object at <0x23AF>". Analagous to an object's toString()
+    in Java
+    '''
     def __str__(self):
-        return 'Game({0} @ {1}, {2}-{3})'.format(
+        return '{0} @ {1}, {2}-{3}'.format(
             self.away_team, 
             self.home_team, 
             self.away_score, 
             self.home_score
         )
 
+    '''
+    This is one of the (relatively few) annoying parts of python: If you try
+    to print an object in any way other than explicitly printing one item of
+    it (for example, say you have a List of Team objects. If you say 'print list')
+    you get the not-useful <Game object at 0X1F212> thing. We just have this call
+    __str__ because there's no need for us to implement this twice. See
+    https://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
+    for more details.
+    '''
+    def __repr__(self):
+        return self.__str__()
+
     def home_team_won(self):
-        '''Returns true if the home team won this game'''
         return self.home_score > self.away_score

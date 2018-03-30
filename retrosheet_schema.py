@@ -1,6 +1,8 @@
 '''
 Fields we'll be using from the raw data. Full schema can be found at
 http://www.retrosheet.org/gamelogs/glfields.txt
+
+Data is taken from http://www.retrosheet.org/gamelogs/index.html
 '''
 
 DATE = 0 # of the form "yyyymmdd"
