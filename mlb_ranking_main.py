@@ -34,6 +34,9 @@ def main():
     for team in sorted(teams.keys()):
         print team
 
+    for game in game_data[2]:
+        print game
+
 
 if __name__ == '__main__':
     main()
