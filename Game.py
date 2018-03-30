@@ -54,4 +54,9 @@ class Game(object):
         self.away_score = split_row[VISITING_TEAM_SCORE]
 
     def __str__(self):
-        return 'Game({0} @ {1}, {2}-{3})'.format(self.away_team, self.home_team, self.away_score, self.home_score)
+        return 'Game({0} @ {1}, {2}-{3})'.format(
+            self.away_team, 
+            self.home_team, 
+            self.away_score, 
+            self.home_score
+        )
