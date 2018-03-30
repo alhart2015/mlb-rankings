@@ -79,7 +79,7 @@ class Game(object):
     to print an object in any way other than explicitly printing one item of
     it (for example, say you have a List of Team objects. If you say 'print list')
     you get the not-useful <Game object at 0X1F212> thing. We just have this call
-    __str__ because there's no need for us to implement this twice. See
+    __str__ because there's no need for us to implement this twice here. See
     https://stackoverflow.com/questions/1436703/difference-between-str-and-repr-in-python
     for more details.
     '''
