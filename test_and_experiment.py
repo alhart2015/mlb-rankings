@@ -80,6 +80,14 @@ def create_league_from_games(game_data, formula):
 
     return (teams, nats_elo)
 
+def plot_elos_over_time(colors, *scores):
+    games = range(1, 163)
+
+    for i, score_list in enumerate(scores):
+        plt.plot(games, score_list, color = colors[i])
+
+    plt.show()
+
 def main():
     game_data = mlb_ranking_main.read_game_data('data/GL2017.txt')
 
@@ -90,12 +98,7 @@ def main():
     (score_elo_teams, score_nats) = create_league_from_games(game_data, rating_utils.SCORE_BASED_ELO)
     mlb_ranking_main.print_sorted_by_rating_desc(score_elo_teams)
 
-    plt.plot(range(1, 163), score_nats, color = 'red')
-    plt.plot(range(1, 163), basic_nats, color = 'blue')
-    plt.show()
-
-    # for game in game_data[:10]:
-    #     print game, game.home_team_won()
+    plot_elos_over_time(['r', 'b'], score_nats, basic_nats)
 
     print len(basic_nats), len(score_nats)
 
