@@ -3,6 +3,8 @@ from retrosheet_schema import VISITING_TEAM
 from retrosheet_schema import HOME_TEAM_SCORE
 from retrosheet_schema import VISITING_TEAM_SCORE
 
+import rating_utils
+
 # this is a lookup to translate the nicknames in the dataset into
 # the actual names and cities of the teams
 TEAM_NICKNAMES = {
@@ -90,3 +92,39 @@ class Game(object):
 
     def home_team_won(self):
         return self.home_score > self.away_score
+
+    '''
+    Update the provided teams with the result of the game. Updates
+    wins, losses, run differential, and rating for each team according
+    to the provided formula.
+
+    @param self - the game
+    @param home_team - Team - the home team in the game
+    @param away_team - Team - the away team
+    @param formula - one of the implemented rating formulas
+
+    @return (home_team, away_team) with all fields updated
+    '''
+    def update_teams(self, home_team, away_team, formula):
+        if self.home_team_won():
+            home_team.wins += 1
+            away_team.losses += 1
+            (home_team, away_team) = rating_utils.update(home_team,
+                                                         away_team,
+                                                         self,
+                                                         formula)
+            score_diff = self.home_score - self.away_score
+            home_team.run_differential += score_diff
+            away_team.run_differential -= score_diff
+        else:
+            home_team.losses += 1
+            away_team.wins += 1
+            (away_team, home_team) = rating_utils.update(away_team,
+                                                         home_team,
+                                                         self,
+                                                         formula)
+            score_diff = self.away_score - self.home_score
+            home_team.run_differential -= score_diff
+            away_team.run_differential += score_diff
+
+        return (home_team, away_team)

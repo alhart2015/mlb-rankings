@@ -63,23 +63,7 @@ def create_league_from_games(game_data):
         home_team = teams[home_team_name]
         away_team = teams[away_team_name]
 
-        # update the records and ratings of these teams
-        if game.home_team_won():
-            home_team.wins += 1
-            away_team.losses += 1
-            (home_team, away_team) = rating_utils.update(home_team, 
-                                                         away_team, 
-                                                         game, 
-                                                         rating_utils.SCALED_RATING)
-
-        else:
-            home_team.losses += 1
-            away_team.wins += 1
-            (away_team, home_team) = rating_utils.update(away_team, 
-                                                         home_team, 
-                                                         game,
-                                                         rating_utils.SCALED_RATING)
-
+        home_team, away_team = game.update_teams(home_team, away_team, rating_utils.SCALED_RATING)
 
         teams[home_team_name] = home_team
         teams[away_team_name] = away_team
@@ -109,15 +93,14 @@ so whatever. This will move every team closer to average (1500) by 20%. This
 function also resets wins and losses.
 '''
 def regress_to_mean_between_years(teams):
-    for (name, team) in teams.iteritems():
-        rating_gap_from_average = team.rating - 1500
-        regressed_gap = rating_gap_from_average * 0.8
-        new_rating = 1500 + regressed_gap
-        team.rating = new_rating
-        team.wins = 0
-        team.losses = 0
 
-    return teams
+    regressed_teams = {}
+
+    for (name, team) in teams.iteritems():
+        new_team = team.reset_for_new_season()
+        regressed_teams[name] = new_team
+
+    return regressed_teams
     
 
 def main():

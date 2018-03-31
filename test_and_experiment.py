@@ -49,22 +49,23 @@ def create_league_from_games(game_data, formula):
         # print away_team
 
         # update the records and ratings of these teams
-        if game.home_team_won():
-            home_team.wins += 1
-            away_team.losses += 1
-            (home_team, away_team) = rating_utils.update(home_team, 
-                                                         away_team, 
-                                                         game, 
-                                                         formula)
+        # if game.home_team_won():
+        #     home_team.wins += 1
+        #     away_team.losses += 1
+        #     (home_team, away_team) = rating_utils.update(home_team, 
+        #                                                  away_team, 
+        #                                                  game, 
+        #                                                  formula)
 
-        else:
-            home_team.losses += 1
-            away_team.wins += 1
-            (away_team, home_team) = rating_utils.update(away_team, 
-                                                         home_team, 
-                                                         game,
-                                                         formula)
 
+        # else:
+        #     home_team.losses += 1
+        #     away_team.wins += 1
+        #     (away_team, home_team) = rating_utils.update(away_team, 
+        #                                                  home_team, 
+        #                                                  game,
+        #                                                  formula)
+        home_team, away_team = game.update_teams(home_team, away_team, formula)
         # print 'After update'
         # print game
         # print home_team
@@ -105,6 +106,10 @@ def plot_elos_over_time(colors, labels, scores):
     plt.show()
 
 # TODO: Write a function to get the elo list over a season for a given team and formula
+
+# TODO: Write a function to get the elo list over a given season for the best team at the time
+
+# TODO: Write a function to get the numerical rank (1-30) for a given team and formula throughout the season
 
 def main():
     game_data = mlb_ranking_main.read_game_data('data/GL2017.txt')
