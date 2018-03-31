@@ -80,12 +80,28 @@ def create_league_from_games(game_data, formula):
 
     return (teams, nats_elo)
 
-def plot_elos_over_time(colors, *scores):
+'''
+Plot an arbitrary number of elos over time.
+
+@param colors - List[String]. A list of valid pyplot colors.
+@param labels - List[String]. A list of valid pyplot line labels
+@param scores - List[List[Double]]. A list of a season (162 games) worth of elos
+'''
+def plot_elos_over_time(colors, labels, scores):
     games = range(1, 163)
 
-    for i, score_list in enumerate(scores):
-        plt.plot(games, score_list, color = colors[i])
+    handles = []
 
+    for i, score_list in enumerate(scores):
+        # I hate this trailing comma notation, but whatever.
+        temp_plot, = plt.plot(games, score_list, color = colors[i])
+        handles.append(temp_plot)
+
+
+    plt.title('Elo ratings through a season')
+    plt.xlabel('Games')
+    plt.ylabel('Rating')
+    plt.legend(handles, labels)
     plt.show()
 
 def main():
@@ -98,7 +114,10 @@ def main():
     (score_elo_teams, score_nats) = create_league_from_games(game_data, rating_utils.SCORE_BASED_ELO)
     mlb_ranking_main.print_sorted_by_rating_desc(score_elo_teams)
 
-    plot_elos_over_time(['r', 'b'], score_nats, basic_nats)
+    plot_elos_over_time(
+        colors = ['r', 'b'], 
+        labels = ['score-based', 'basic'],
+        scores = [score_nats, basic_nats])
 
     print len(basic_nats), len(score_nats)
 
