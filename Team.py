@@ -14,7 +14,7 @@ class Team(object):
         self.name = name
         self.wins = 0
         self.losses = 0
-        self.rating = 1500
+        self.rating = 1500.0
     
     '''See Game.py for an explanation of why we do this'''
     def __str__(self):

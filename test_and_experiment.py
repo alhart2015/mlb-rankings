@@ -90,19 +90,21 @@ Plot an arbitrary number of elos over time.
 def plot_elos_over_time(colors, labels, scores):
     games = range(1, 163)
 
-    handles = []
+    plots = []
 
     for i, score_list in enumerate(scores):
         # I hate this trailing comma notation, but whatever.
         temp_plot, = plt.plot(games, score_list, color = colors[i])
-        handles.append(temp_plot)
+        plots.append(temp_plot)
 
 
     plt.title('Elo ratings through a season')
     plt.xlabel('Games')
     plt.ylabel('Rating')
-    plt.legend(handles, labels)
+    plt.legend(plots, labels)
     plt.show()
+
+# TODO: Write a function to get the elo list over a season for a given team and formula
 
 def main():
     game_data = mlb_ranking_main.read_game_data('data/GL2017.txt')
@@ -114,12 +116,14 @@ def main():
     (score_elo_teams, score_nats) = create_league_from_games(game_data, rating_utils.SCORE_BASED_ELO)
     mlb_ranking_main.print_sorted_by_rating_desc(score_elo_teams)
 
-    plot_elos_over_time(
-        colors = ['r', 'b'], 
-        labels = ['score-based', 'basic'],
-        scores = [score_nats, basic_nats])
+    print "-----------------------------"
+    (scaled_elo_teams, scaled_nats) = create_league_from_games(game_data, rating_utils.SCALED_RATING)
+    mlb_ranking_main.print_sorted_by_rating_desc(scaled_elo_teams)
 
-    print len(basic_nats), len(score_nats)
+    plot_elos_over_time(
+        colors = ['r', 'b', 'g'], 
+        labels = ['score-based', 'basic', 'scaled'],
+        scores = [score_nats, basic_nats, scaled_nats])
 
 
 if __name__ == '__main__':
