@@ -70,7 +70,7 @@ def create_league_from_games(game_data):
             (home_team, away_team) = rating_utils.update(home_team, 
                                                          away_team, 
                                                          game, 
-                                                         rating_utils.SCORE_BASED_ELO)
+                                                         rating_utils.SCALED_RATING)
 
         else:
             home_team.losses += 1
@@ -78,7 +78,7 @@ def create_league_from_games(game_data):
             (away_team, home_team) = rating_utils.update(away_team, 
                                                          home_team, 
                                                          game,
-                                                         rating_utils.SCORE_BASED_ELO)
+                                                         rating_utils.SCALED_RATING)
 
 
         teams[home_team_name] = home_team
