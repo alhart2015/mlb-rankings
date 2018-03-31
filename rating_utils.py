@@ -37,7 +37,7 @@ implement that later.
 '''
 def vanilla_elo(winning_team, losing_team, game):
 
-    k = 32
+    k = 2
 
     winner_transformed_rating = winning_team.transform_rating()
     loser_transformed_rating = losing_team.transform_rating()
@@ -60,7 +60,7 @@ def augmented_elo(winning_team, losing_team, game):
     if not game.home_team_won():
         score_diff *= -1
 
-    k = 32 * score_diff
+    k = score_diff if score_diff > 0 else 1
 
     winner_transformed_rating = winning_team.transform_rating()
     loser_transformed_rating = losing_team.transform_rating()

@@ -25,6 +25,8 @@ you give this function more than one season's worth of data.
 def create_league_from_games(game_data, formula):
     teams = {}
 
+    nats_elo = []
+
     for game in game_data:
         home_team_name = game.home_team
         away_team_name = game.away_team
@@ -71,20 +73,30 @@ def create_league_from_games(game_data, formula):
         teams[home_team_name] = home_team
         teams[away_team_name] = away_team
 
-    return teams
+        if home_team.name == 'Washington Nationals':
+            nats_elo.append(home_team.rating)
+        elif away_team.name == 'Washington Nationals':
+            nats_elo.append(away_team.rating)
+
+    return (teams, nats_elo)
 
 def main():
     game_data = mlb_ranking_main.read_game_data('data/GL2017.txt')
 
-    basic_elo_teams = create_league_from_games(game_data, rating_utils.vanilla_elo)
+    (basic_elo_teams, basic_nats) = create_league_from_games(game_data, rating_utils.vanilla_elo)
     mlb_ranking_main.print_sorted_by_rating_desc(basic_elo_teams)
 
     print "-----------------------------"
-    score_elo_teams = create_league_from_games(game_data, rating_utils.augmented_elo)
+    (score_elo_teams, score_nats) = create_league_from_games(game_data, rating_utils.augmented_elo)
     mlb_ranking_main.print_sorted_by_rating_desc(score_elo_teams)
+
+    plt.plot(range(1, 163), score_nats)
+    plt.show()
 
     # for game in game_data[:10]:
     #     print game, game.home_team_won()
+
+    print len(basic_nats), len(score_nats)
 
 
 if __name__ == '__main__':
