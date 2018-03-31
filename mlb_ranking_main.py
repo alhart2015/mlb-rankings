@@ -97,18 +97,41 @@ sorted(                 # python builtin to sort a collection
 )
 '''
 def print_sorted_by_rating_desc(teams):
-    for (name, team) in sorted(teams.iteritems(), key = lambda (k,v): (v.rating, k), reverse = True):
-        print team
 
+    sorted_teams = sorted(teams.iteritems(), key = lambda (k, v): (v.rating, k), reverse = True)
+
+    for i, tup in enumerate(sorted_teams):
+        print i+1, tup[1]
+
+'''
+I'm torn on whether I like automatically regressing to the mean, but 538 does it
+so whatever. This will move every team closer to average (1500) by 20%. This
+function also resets wins and losses.
+'''
 def regress_to_mean_between_years(teams):
-    pass
+    for (name, team) in teams.iteritems():
+        rating_gap_from_average = team.rating - 1500
+        regressed_gap = rating_gap_from_average * 0.8
+        new_rating = 1500 + regressed_gap
+        team.rating = new_rating
+        team.wins = 0
+        team.losses = 0
+
+    return teams
+    
 
 def main():
     game_data_2017 = read_game_data('data/GL2017.txt')
 
     teams_2017 = create_league_from_games(game_data_2017)
 
+    print 'Ratings at the end of 2017'
     print_sorted_by_rating_desc(teams_2017)
+
+    print '------------------'
+    print 'Ratings in 2018'
+    teams_2018 = regress_to_mean_between_years(teams_2017)
+    print_sorted_by_rating_desc(teams_2018)
 
 
 if __name__ == '__main__':

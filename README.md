@@ -6,6 +6,10 @@ Input data for this is taken from
 
 http://www.retrosheet.org/gamelogs/index.html
 
+The information used here was obtained free of charge from and is
+copyrighted by Retrosheet.  Interested parties may contact Retrosheet
+at "www.retrosheet.org".
+
 I really hope they update this dataset daily, otherwise I'm gonna
 have to find another place to pull from.
 
