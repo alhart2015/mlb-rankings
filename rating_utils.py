@@ -2,21 +2,30 @@
 A collection of all of the ways we'll try and calculate ratings.
 '''
 
+# keep track of the formulas we've defined
+VANILLA_ELO = 0
+SCORE_BASED_ELO = 1
+
+
 '''
 Generic function to update a team's rating based on the specified formula.
 
 @param winning_team - the Team that won the game
 @param losing_team - the Team that lost the game
 @param game - the Game they played
-@param formula - a function that calculates the new ratings. This will likely
-                 need some clarification, this is a pretty non-straightforward
-                 thing. The function needs to be of the type (Team, Team, Game) -> (Double, Double)
+@param formula - a function that calculates the new ratings. Has to be one
+                    we've already defined
 
 @return a tuple of the winning team and losing team
 '''
 def update(winning_team, losing_team, game, formula):
 
-    (winner_updated_rating, loser_updated_rating) = formula(winning_team, losing_team, game)
+    if formula == VANILLA_ELO:
+        (winner_updated_rating, loser_updated_rating) = vanilla_elo(winning_team, losing_team)
+    elif formula == SCORE_BASED_ELO:
+        (winner_updated_rating, loser_updated_rating) = score_based_elo(winning_team, losing_team, game)
+    else:
+        raise ValueError("Unexpected formula passed to update: {0}".format(formula))
 
     winning_team.rating = winner_updated_rating
     losing_team.rating = loser_updated_rating
@@ -35,7 +44,7 @@ implement that later.
 
 @return a (winning_team_rating, losing_team_rating) tuple with each team's updated elo
 '''
-def vanilla_elo(winning_team, losing_team, game):
+def vanilla_elo(winning_team, losing_team):
 
     k = 2
 
@@ -53,7 +62,7 @@ def vanilla_elo(winning_team, losing_team, game):
 '''
 A variation of elo that takes run differential into account.
 '''
-def augmented_elo(winning_team, losing_team, game):
+def score_based_elo(winning_team, losing_team, game):
 
     score_diff = game.home_score - game.away_score
 

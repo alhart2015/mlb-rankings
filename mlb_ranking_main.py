@@ -70,7 +70,7 @@ def create_league_from_games(game_data):
             (home_team, away_team) = rating_utils.update(home_team, 
                                                          away_team, 
                                                          game, 
-                                                         rating_utils.augmented_elo)
+                                                         rating_utils.SCORE_BASED_ELO)
 
         else:
             home_team.losses += 1
@@ -78,7 +78,7 @@ def create_league_from_games(game_data):
             (away_team, home_team) = rating_utils.update(away_team, 
                                                          home_team, 
                                                          game,
-                                                         rating_utils.augmented_elo)
+                                                         rating_utils.SCORE_BASED_ELO)
 
 
         teams[home_team_name] = home_team
@@ -86,16 +86,29 @@ def create_league_from_games(game_data):
 
     return teams
 
+'''
+Printing a dictionary sorted by its values is a pain. This does that:
+sorted(                 # python builtin to sort a collection
+    teams.iteritems(),  # takes a dict and makes a list of (key, value) tuples
+    key = lambda        # lambda keyword means we're defining a quick utility function
+    (k,v):              # the parameters of this function are k and v
+    (v.rating, k),      # the function returns a tuple of (v.rating, k)
+    reverse = True      # sort in reverse order so highest rating first    
+)
+'''
 def print_sorted_by_rating_desc(teams):
-    for team in sorted(teams.iteritems(), key = lambda (k,v): (v.rating, k), reverse = True):
+    for (name, team) in sorted(teams.iteritems(), key = lambda (k,v): (v.rating, k), reverse = True):
         print team
 
+def regress_to_mean_between_years(teams):
+    pass
+
 def main():
-    game_data = read_game_data('data/GL2017.txt')
+    game_data_2017 = read_game_data('data/GL2017.txt')
 
-    teams = create_league_from_games(game_data)
+    teams_2017 = create_league_from_games(game_data_2017)
 
-    print_sorted_by_rating_desc(teams)
+    print_sorted_by_rating_desc(teams_2017)
 
 
 if __name__ == '__main__':

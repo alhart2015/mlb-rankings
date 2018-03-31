@@ -83,14 +83,15 @@ def create_league_from_games(game_data, formula):
 def main():
     game_data = mlb_ranking_main.read_game_data('data/GL2017.txt')
 
-    (basic_elo_teams, basic_nats) = create_league_from_games(game_data, rating_utils.vanilla_elo)
+    (basic_elo_teams, basic_nats) = create_league_from_games(game_data, rating_utils.VANILLA_ELO)
     mlb_ranking_main.print_sorted_by_rating_desc(basic_elo_teams)
 
     print "-----------------------------"
-    (score_elo_teams, score_nats) = create_league_from_games(game_data, rating_utils.augmented_elo)
+    (score_elo_teams, score_nats) = create_league_from_games(game_data, rating_utils.SCORE_BASED_ELO)
     mlb_ranking_main.print_sorted_by_rating_desc(score_elo_teams)
 
-    plt.plot(range(1, 163), score_nats)
+    plt.plot(range(1, 163), score_nats, color = 'red')
+    plt.plot(range(1, 163), basic_nats, color = 'blue')
     plt.show()
 
     # for game in game_data[:10]:
