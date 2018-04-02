@@ -84,6 +84,10 @@ def print_sorted_by_rating_desc(teams):
 
     sorted_teams = sorted(teams.iteritems(), key = lambda (k, v): (v.rating, k), reverse = True)
 
+    # enumerate() is a builtin function that takes a list and returns a list of
+    # (i, value) tuples, where i is the index of value in the list. In this case,
+    # since sorted_teams is a list of (name, Team) tuples, enumerate gives us a
+    # series of (i, (name, Team)) nested tuples. This then prints i and Team.
     for i, tup in enumerate(sorted_teams):
         print i+1, tup[1]
 
