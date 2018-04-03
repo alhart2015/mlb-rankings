@@ -3,7 +3,7 @@ The goal is to develop a power rankings for MLB.
 
 Roughly based on ELO? Idk.
 '''
-from Game import Game
+from Game import Game, game_from_split_row
 from Team import Team
 
 import rating_utils
@@ -28,7 +28,7 @@ def read_game_data(filename):
             # most of these fields are in quotes. get rid of that
             clean_row = [field.replace('"', '') for field in split_row]
             # convert to Game object
-            parsed_game = Game(clean_row)
+            parsed_game = game_from_split_row(clean_row)
             # store
             all_games.append(parsed_game)
 

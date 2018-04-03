@@ -80,14 +80,16 @@ Constructor when you only want to pass in a split_row.
                     retrosheet file, split on commas and cleaned of
                     all the excess quotation marks
 '''
-def from_split_row(self, split_row):
+def game_from_split_row(split_row):
     raw_home_team = split_row[HOME_TEAM]
-    self.home_team = TEAM_NICKNAMES[raw_home_team]
+    home_team = TEAM_NICKNAMES[raw_home_team]
     raw_away_team = split_row[VISITING_TEAM]
-    self.away_team = TEAM_NICKNAMES[raw_away_team]
+    away_team = TEAM_NICKNAMES[raw_away_team]
 
-    self.home_score = int(split_row[HOME_TEAM_SCORE])
-    self.away_score = int(split_row[VISITING_TEAM_SCORE])
+    home_score = int(split_row[HOME_TEAM_SCORE])
+    away_score = int(split_row[VISITING_TEAM_SCORE])
+
+    return Game(home_team, away_team, home_score, away_score)
 
 class Game(object):
     """Represents a single game in the season"""
