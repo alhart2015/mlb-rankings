@@ -12,6 +12,8 @@ https://github.com/panzarino/mlbgame
 import requests
 from xml.etree import ElementTree
 
+import Game
+
 MLB_API_URL = 'http://gd.mlb.com/components/game/mlb/' \
                 'year_{0}/month_{1:02d}/day_{2:02d}/'
 GAMEDAY_SCOREBOARD = 'scoreboard.xml'
@@ -35,14 +37,36 @@ def scrape_mlb(year, month, day):
     # parse the response into an xml tree
     parsed_scoreboard = ElementTree.fromstring(response.content)
     
-    for game in parsed_scoreboard:
-        for thing in game:
-            if thing.tag == 'team':
-                for o in thing:
+    games = []
+
+    for game_xml_wrapper in parsed_scoreboard:
+        found_home_team = False
+        for game_info in game_xml_wrapper:
+
+            if game_info.tag == 'team':
+                for team_info in game_info:
                     # print 'found a team'
-                    # print thing.tag, thing.attrib, o.tag, o.attrib
-                    print thing.attrib['name'], o.attrib['R']
+                    # print game_info.tag, game_info.attrib, team_info.tag, team_info.attrib
+
+                    if not found_home_team:
+                        home_name = game_info.attrib['name']
+                        home_score = int(team_info.attrib['R'])
+                        found_home_team = True
+                    else:
+                        away_name = game_info.attrib['name']
+                        away_score = team_info.attrib['R']
+                    # runs = team_info.attrib['R']
+                    print game_info.attrib['name'], team_info.attrib['R']
+
+        home_full_name = Game.MLB_CLUB_NAMES[home_name]
+        away_full_name = Game.MLB_CLUB_NAMES[away_name]
+        game_obj = Game.Game(home_full_name, away_full_name, home_score, away_score)
+        print game_obj
+        games.append(game_obj)
         print
+
+    print len(games)
+    print games
 
     # print response.content
 

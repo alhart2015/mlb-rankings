@@ -40,6 +40,55 @@ TEAM_NICKNAMES = {
     "WAS" : "Washington Nationals"
 }
 
+MLB_CLUB_NAMES = {
+    "Angels" : "Los Angeles Angels",
+    "Diamondbacks" : "Arizona Diamondbacks",
+    "Braves" : "Atlanta Braves",
+    "Orioles" : "Baltimore Orioles",
+    "Red Sox" : "Boston Red Sox",
+    "White Sox" : "Chicago White Sox",
+    "Cubs" : "Chicago Cubs",
+    "Reds" : "Cincinnati Reds",
+    "Indians" : "Cleveland Indians",
+    "Rockies" : "Colorado Rockies",
+    "Tigers" : "Detroit Tigers",
+    "Astros" : "Houston Astros",
+    "Royals" : "Kansas City Royals",
+    "Dodgers" : "Los Angeles Dodgers",
+    "Marlins" : "Miami Marlins",
+    "Brewers" : "Milwaukee Brewers",
+    "Twins" : "Minnesota Twins",
+    "Yankees" : "New York Yankees",
+    "Mets" : "New York Mets",
+    "Athletics" : "Oakland A's",
+    "Phillies" : "Philadelphia Phillies",
+    "Pirates" : "Pittsburgh Pirates",
+    "Padres" : "San Diego Padres",
+    "Mariners" : "Seattle Mariners",
+    "Giants" : "San Francisco Giants",
+    "Cardinals" : "St. Louis Cardinals",
+    "Rays" : "Tampa Bay Rays",
+    "Rangers" : "Texas Rangers",
+    "Blue Jays" : "Toronto Blue Jays",
+    "Nationals" : "Washington Nationals"
+}
+
+'''
+Constructor when you only want to pass in a split_row.
+
+@param split_row - a list of Strings corresponding to one row from the
+                    retrosheet file, split on commas and cleaned of
+                    all the excess quotation marks
+'''
+def from_split_row(self, split_row):
+    raw_home_team = split_row[HOME_TEAM]
+    self.home_team = TEAM_NICKNAMES[raw_home_team]
+    raw_away_team = split_row[VISITING_TEAM]
+    self.away_team = TEAM_NICKNAMES[raw_away_team]
+
+    self.home_score = int(split_row[HOME_TEAM_SCORE])
+    self.away_score = int(split_row[VISITING_TEAM_SCORE])
+
 class Game(object):
     """Represents a single game in the season"""
     def __init__(self, home_team, away_team, home_score, away_score):
@@ -47,22 +96,6 @@ class Game(object):
         self.away_team = away_team
         self.home_score = int(home_score)
         self.away_score = int(away_score)
-
-    '''
-    Constructor when you only want to pass in a split_row.
-
-    @param split_row - a list of Strings corresponding to one row from the
-                        retrosheet file, split on commas and cleaned of
-                        all the excess quotation marks
-    '''
-    def __init__(self, split_row):
-        raw_home_team = split_row[HOME_TEAM]
-        self.home_team = TEAM_NICKNAMES[raw_home_team]
-        raw_away_team = split_row[VISITING_TEAM]
-        self.away_team = TEAM_NICKNAMES[raw_away_team]
-
-        self.home_score = int(split_row[HOME_TEAM_SCORE])
-        self.away_score = int(split_row[VISITING_TEAM_SCORE])
 
     '''
     Get a string representation of the Game object. We do this so we can
