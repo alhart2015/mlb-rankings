@@ -163,3 +163,16 @@ class Game(object):
             away_team.run_differential += score_diff
 
         return (home_team, away_team)
+
+
+    '''
+    Convert fields to a dictionary in the format we need to insert the game
+    into the SQLite database
+    '''
+    def to_db_dict(self):
+        return {
+            'home_team' : self.home_team,
+            'away_team' : self.away_team,
+            'home_score': self.home_score,
+            'away_score': self.away_score
+        }
