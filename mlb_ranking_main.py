@@ -120,6 +120,8 @@ def main():
     teams_2018 = regress_to_mean_between_years(teams_2017)
     print_sorted_by_rating_desc(teams_2018)
 
+    print game_data_2017[:3]
+
 
 if __name__ == '__main__':
     main()

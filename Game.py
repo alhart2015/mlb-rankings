@@ -1,3 +1,4 @@
+from retrosheet_schema import DATE
 from retrosheet_schema import HOME_TEAM
 from retrosheet_schema import VISITING_TEAM
 from retrosheet_schema import HOME_TEAM_SCORE
@@ -73,8 +74,13 @@ MLB_CLUB_NAMES = {
     "Nationals" : "Washington Nationals"
 }
 
+BLANK_GAME_ID = 'blank_game_id'
+
 '''
-Constructor when you only want to pass in a split_row.
+Constructor when you only want to pass in a split_row. This'll leave
+game_id blank - we'll calculate that when we insert into the db. We
+also convert date from the retrosheet format, yyyymmdd, to an easier
+to handle yyyy-mm-dd format.
 
 @param split_row - a list of Strings corresponding to one row from the
                     retrosheet file, split on commas and cleaned of
@@ -89,15 +95,30 @@ def game_from_split_row(split_row):
     home_score = int(split_row[HOME_TEAM_SCORE])
     away_score = int(split_row[VISITING_TEAM_SCORE])
 
-    return Game(home_team, away_team, home_score, away_score)
+    raw_date = split_row[DATE]
+    parsed_date = delimited_rate_from_raw(raw_date)
+
+    return Game(home_team, away_team, home_score, away_score, parsed_date, BLANK_GAME_ID)
+
+def delimited_rate_from_raw(raw_date):
+    year = raw_date[:4]
+    month = raw_date[4:6]
+    day = raw_date[6:8]
+
+    return '{y}-{m}-{d}'.format(
+        y = year,
+        m = month,
+        d = day)
 
 class Game(object):
     """Represents a single game in the season"""
-    def __init__(self, home_team, away_team, home_score, away_score):
+    def __init__(self, home_team, away_team, home_score, away_score, date, game_id):
         self.home_team = home_team
         self.away_team = away_team
         self.home_score = int(home_score)
         self.away_score = int(away_score)
+        self.date = date
+        self.game_id = game_id
 
     '''
     Get a string representation of the Game object. We do this so we can
@@ -106,11 +127,13 @@ class Game(object):
     in Java
     '''
     def __str__(self):
-        return '{0} @ {1}, {2}-{3}'.format(
-            self.away_team, 
-            self.home_team, 
-            self.away_score, 
-            self.home_score
+        return 'Game {gid} on {dt}: {a} @ {h}, {asc}-{hsc}'.format(
+            a = self.away_team, 
+            h = self.home_team, 
+            asc = self.away_score, 
+            hsc = self.home_score,
+            gid = self.game_id,
+            dt = self.date
         )
 
     '''
@@ -165,14 +188,15 @@ class Game(object):
         return (home_team, away_team)
 
 
-    '''
-    Convert fields to a dictionary in the format we need to insert the game
-    into the SQLite database
-    '''
-    def to_db_dict(self):
-        return {
-            'home_team' : self.home_team,
-            'away_team' : self.away_team,
-            'home_score': self.home_score,
-            'away_score': self.away_score
-        }
+# TODO: self.__dict__ should work here, same w/ vars(self)
+    # '''
+    # Convert fields to a dictionary in the format we need to insert the game
+    # into the SQLite database
+    # '''
+    # def to_db_dict(self):
+    #     return {
+    #         'home_team' : self.home_team,
+    #         'away_team' : self.away_team,
+    #         'home_score': self.home_score,
+    #         'away_score': self.away_score
+    #     }
