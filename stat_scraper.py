@@ -71,7 +71,9 @@ def pull_games_for_day(year, month, day):
 For testing
 '''
 def main():
-    games = pull_games_for_day(2018, 4, 1)
+    games = pull_games_for_day(2018, 4, 2)
+    for game in games:
+        print game
 
 if __name__ == '__main__':
     main()

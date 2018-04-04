@@ -42,7 +42,7 @@ TEAM_NICKNAMES = {
 
 MLB_CLUB_NAMES = {
     "Angels" : "Los Angeles Angels",
-    "Diamondbacks" : "Arizona Diamondbacks",
+    "D-backs" : "Arizona Diamondbacks",
     "Braves" : "Atlanta Braves",
     "Orioles" : "Baltimore Orioles",
     "Red Sox" : "Boston Red Sox",
