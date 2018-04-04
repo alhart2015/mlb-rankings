@@ -3,7 +3,9 @@ import retrosheet_schema
 import team_name_lookups
 
 BLANK_GAME_ID = 'blank_game_id'
-GAME_ID_BASE = 'gid_{y}_{m:02d}_{d:02d}_{atc}{asc}_{htc}{hsc}_{d}'
+GAME_ID_BASE = 'gid_{y}_{m}_{d}_{atc}{asc}_{htc}{hsc}_{dn}'
+MLB_SPORT_CODE = 'mlb'
+NOT_DOUBLEHEADER = 1
 
 '''
 Constructor when you only want to pass in a split_row. This'll leave
@@ -135,14 +137,22 @@ class Game(object):
         asc -- three-letter away team sport code
         htc -- three-letter home team code
         hsc -- three-letter home team sport code
-        d -- one digit game number (either 1 or 2)
+        dn -- one digit game number (either 1 or 2)
     '''
     def calculate_raw_game_id(self):
+
+        away_team_code = team_name_lookups.MLB_TEAM_TO_CODE[self.away_team]
+        home_team_code = team_name_lookups.MLB_TEAM_TO_CODE[self.home_team]
         
         return GAME_ID_BASE.format(
             y = self.year,
             m = self.month,
-            d = self.date)
+            d = self.day,
+            atc = away_team_code,
+            asc = MLB_SPORT_CODE,
+            htc = home_team_code,
+            hsc = MLB_SPORT_CODE,
+            dn = NOT_DOUBLEHEADER)
 
 
 # TODO: self.__dict__ should work here, same w/ vars(self)
