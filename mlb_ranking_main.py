@@ -19,6 +19,7 @@ clean it up a bit, and turn those into Game objects
 def read_game_data(filename):
 
     all_games = []
+    game_ids = {}
 
     with open(filename, 'r') as f:
         for row in f:
@@ -29,6 +30,15 @@ def read_game_data(filename):
             clean_row = [field.replace('"', '') for field in split_row]
             # convert to Game object
             parsed_game = game_from_split_row(clean_row)
+            raw_game_id = parsed_game.calculate_raw_game_id()
+            if raw_game_id in game_ids.keys():
+                # we have this game id already so this is a doubleheader. replace
+                # the last character (a 1) with a 2
+                print raw_game_id
+                raw_game_id = raw_game_id[:-1] + '2'
+
+            game_ids[raw_game_id] = 1
+            parsed_game.game_id = raw_game_id
             # store
             all_games.append(parsed_game)
 
@@ -47,7 +57,6 @@ this opportunity to calculate the game_id for each game.
 '''
 def create_league_from_games(game_data):
     teams = {}
-    game_ids = {}
 
     for game in game_data:
         home_team_name = game.home_team
