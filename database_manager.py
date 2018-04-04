@@ -64,10 +64,7 @@ handled at this point.
 @param games: a list of Games
 @param db: the database
 '''
-def add_games_to_db(games):
-    print 'Connecting to the SQLite database'
-    db = sqlite3.connect(DB_LOCATION)
-    print 'Connected'
+def add_games_to_db(games, db):
 
     cursor = db.cursor()
 
@@ -83,15 +80,13 @@ def add_games_to_db(games):
     print 'Finished adding {0} games'.format(len(games) - games_skipped)
     print 'Skipped {0} games'.format(games_skipped)
 
-    db.commit()
-    db.close()
 
 '''
 Read in the team_info file, make a table that matches it, and fill that
 table with the contents of the file.
 '''
-def create_and_populate_team_info(filename):
-    db = sqlite3.connect(DB_LOCATION)
+def create_and_populate_team_info(filename, db):
+    
     cursor = db.cursor()
 
     # We should only really run this once, so creating the table here

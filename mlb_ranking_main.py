@@ -6,9 +6,14 @@ Roughly based on ELO? Idk.
 from Game import Game, game_from_split_row, game_from_db_row
 from Team import Team
 
+from datetime import date, timedelta
+
 import database_manager
 import rating_utils
 import sqlite3
+import stat_scraper
+
+OPENING_DAY_2018 = date(2018, 03, 29)
 
 '''
 Take the raw game data file, open it, pull out the fields you care about,
@@ -118,6 +123,53 @@ def regress_to_mean_between_years(teams):
 
     return regressed_teams
     
+'''
+We're going to need to run this daily(ish) to keep our ratings up-to-date.
+This function will check every day since the provided opening day and make
+sure games for that day are in the database. 
+
+If thorough_check = True, this function will pull every day so far in the 
+season from the API and make sure the games are in the database. This will
+be SLOWWWW.
+If thorough_check = False, we'll just check the database. If there are any
+games for that day, we'll just assume that they're all there. This will be
+much faster than thorough_check = True, but it's possible it could be an
+unsafe assumption if something went wrong that we don't know about.
+
+@param today - datetime.date - the day through which you'll get games for
+@param opening_day - datetime.date - the opening day for the year you're in
+@param thorough_check - boolean - described above. Whether to do a slow or fast fill.
+@param db - the database
+
+@return None
+'''
+def fill_current_season_games(today, opening_day, thorough_check, db):
+
+    cursor = db.cursor()
+
+    date_delta = today - opening_day
+
+    for i in range(date_delta.days + 1):
+        current_day = opening_day + timedelta(i)
+
+        if thorough_check:
+            # Pull from the api for every day
+            pass
+        else:
+            # Check in the database for games for that day
+            cursor.execute('''SELECT * FROM games WHERE year = ? AND
+                                                        month = ? AND
+                                                        day = ?''', 
+                            (current_day.year, 
+                             current_day.month,
+                             current_day.day))
+
+            one_game = cursor.fetchone()
+
+            if one_game is None:
+                # there are no games found for this date, so ping the API
+                games = stat_scraper.pull_games_for_day(current_day.year, current_day.month, current_day.day)
+                database_manager.add_games_to_db(games, db)
 
 def main():
 
@@ -142,7 +194,12 @@ def main():
     teams_2018 = regress_to_mean_between_years(teams_2017)
     print_sorted_by_rating_desc(teams_2018)
 
-    database_manager.add_games_to_db(game_data_2017)
+    # database_manager.add_games_to_db(game_data_2017)
+
+    fill_current_season_games(date(2018, 4, 4), OPENING_DAY_2018, False, db)
+
+    db.commit()
+    db.close()
 
 
 if __name__ == '__main__':
