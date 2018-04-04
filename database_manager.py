@@ -17,7 +17,20 @@ CREATE_GAMES_TABLE = '''CREATE TABLE games(
     away_team  TEXT,
     home_score INTEGER,
     away_score INTEGER
-)'''
+)
+'''
+
+INSERT_GAME_STATEMENT = '''INSERT INTO games VALUES(
+    :game_id,
+    :year,
+    :month,
+    :day,
+    :home_team,
+    :away_team,
+    :home_score,
+    :away_score
+)
+'''
 
 '''
 Add a list of games to the database. If a game_id exists in the table
@@ -27,13 +40,26 @@ handled at this point.
 @param games: a list of Games
 @param db: the database
 '''
-def add_games_to_db(games, db):
+def add_games_to_db(games):
+    print 'Connecting to the SQLite database'
+    db = sqlite3.connect(DB_LOCATION)
+    print 'Connected'
+
     cursor = db.cursor()
 
+    # Count the number of games we don't add because of duplicate keys
+    games_skipped = 0
+    print 'Adding {0} games'.format(len(games))
     for game in games:
-        cursor.execute(INSERT_GAME_STATEMENT)
+        try:
+            cursor.execute(INSERT_GAME_STATEMENT, vars(game))
+        except sqlite3.IntegrityError:
+            games_skipped += 1
+    print 'Finished adding games'
+    print 'Skipped {0} games'.format(games_skipped)
 
     db.commit()
+    db.close()
 
 def main():
     # Creates or opens the file that holds the database

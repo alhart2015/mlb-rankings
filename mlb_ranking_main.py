@@ -6,6 +6,7 @@ Roughly based on ELO? Idk.
 from Game import Game, game_from_split_row
 from Team import Team
 
+import database_manager
 import rating_utils
 
 '''
@@ -34,7 +35,6 @@ def read_game_data(filename):
             if raw_game_id in game_ids.keys():
                 # we have this game id already so this is a doubleheader. replace
                 # the last character (a 1) with a 2
-                print raw_game_id
                 raw_game_id = raw_game_id[:-1] + '2'
 
             game_ids[raw_game_id] = 1
@@ -131,8 +131,7 @@ def main():
     teams_2018 = regress_to_mean_between_years(teams_2017)
     print_sorted_by_rating_desc(teams_2018)
 
-    for game in game_data_2017[:4]:
-        print game, game.calculate_raw_game_id()
+    database_manager.add_games_to_db(game_data_2017)
 
 
 if __name__ == '__main__':
