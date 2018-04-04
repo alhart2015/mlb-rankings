@@ -1,78 +1,6 @@
-from retrosheet_schema import DATE
-from retrosheet_schema import HOME_TEAM
-from retrosheet_schema import VISITING_TEAM
-from retrosheet_schema import HOME_TEAM_SCORE
-from retrosheet_schema import VISITING_TEAM_SCORE
-
 import rating_utils
-
-# this is a lookup to translate the nicknames in the dataset into
-# the actual names and cities of the teams
-TEAM_NICKNAMES = {
-    "ANA" : "Los Angeles Angels",
-    "ARI" : "Arizona Diamondbacks",
-    "ATL" : "Atlanta Braves",
-    "BAL" : "Baltimore Orioles",
-    "BOS" : "Boston Red Sox",
-    "CHA" : "Chicago White Sox",
-    "CHN" : "Chicago Cubs",
-    "CIN" : "Cincinnati Reds",
-    "CLE" : "Cleveland Indians",
-    "COL" : "Colorado Rockies",
-    "DET" : "Detroit Tigers",
-    "HOU" : "Houston Astros",
-    "KCA" : "Kansas City Royals",
-    "LAN" : "Los Angeles Dodgers",
-    "MIA" : "Miami Marlins",
-    "MIL" : "Milwaukee Brewers",
-    "MIN" : "Minnesota Twins",
-    "NYA" : "New York Yankees",
-    "NYN" : "New York Mets",
-    "OAK" : "Oakland A's",
-    "PHI" : "Philadelphia Phillies",
-    "PIT" : "Pittsburgh Pirates",
-    "SDN" : "San Diego Padres",
-    "SEA" : "Seattle Mariners",
-    "SFN" : "San Francisco Giants",
-    "SLN" : "St. Louis Cardinals",
-    "TBA" : "Tampa Bay Rays",
-    "TEX" : "Texas Rangers",
-    "TOR" : "Toronto Blue Jays",
-    "WAS" : "Washington Nationals"
-}
-
-MLB_CLUB_NAMES = {
-    "Angels" : "Los Angeles Angels",
-    "D-backs" : "Arizona Diamondbacks",
-    "Braves" : "Atlanta Braves",
-    "Orioles" : "Baltimore Orioles",
-    "Red Sox" : "Boston Red Sox",
-    "White Sox" : "Chicago White Sox",
-    "Cubs" : "Chicago Cubs",
-    "Reds" : "Cincinnati Reds",
-    "Indians" : "Cleveland Indians",
-    "Rockies" : "Colorado Rockies",
-    "Tigers" : "Detroit Tigers",
-    "Astros" : "Houston Astros",
-    "Royals" : "Kansas City Royals",
-    "Dodgers" : "Los Angeles Dodgers",
-    "Marlins" : "Miami Marlins",
-    "Brewers" : "Milwaukee Brewers",
-    "Twins" : "Minnesota Twins",
-    "Yankees" : "New York Yankees",
-    "Mets" : "New York Mets",
-    "Athletics" : "Oakland A's",
-    "Phillies" : "Philadelphia Phillies",
-    "Pirates" : "Pittsburgh Pirates",
-    "Padres" : "San Diego Padres",
-    "Mariners" : "Seattle Mariners",
-    "Giants" : "San Francisco Giants",
-    "Cardinals" : "St. Louis Cardinals",
-    "Rays" : "Tampa Bay Rays",
-    "Rangers" : "Texas Rangers",
-    "Blue Jays" : "Toronto Blue Jays",
-    "Nationals" : "Washington Nationals"
-}
+import retrosheet_schema
+import team_name_lookups
 
 BLANK_GAME_ID = 'blank_game_id'
 GAME_ID_BASE = 'gid_{y}_{m:02d}_{d:02d}_{atc}{asc}_{htc}{hsc}_{d}'
@@ -88,19 +16,22 @@ to handle yyyy-mm-dd format.
                     all the excess quotation marks
 '''
 def game_from_split_row(split_row):
-    raw_home_team = split_row[HOME_TEAM]
-    home_team = TEAM_NICKNAMES[raw_home_team]
-    raw_away_team = split_row[VISITING_TEAM]
-    away_team = TEAM_NICKNAMES[raw_away_team]
+    raw_home_team = split_row[retrosheet_schema.HOME_TEAM]
+    home_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_home_team]
+    raw_away_team = split_row[retrosheet_schema.VISITING_TEAM]
+    away_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_away_team]
 
-    home_score = int(split_row[HOME_TEAM_SCORE])
-    away_score = int(split_row[VISITING_TEAM_SCORE])
+    home_score = int(split_row[retrosheet_schema.HOME_TEAM_SCORE])
+    away_score = int(split_row[retrosheet_schema.VISITING_TEAM_SCORE])
 
-    raw_date = split_row[DATE]
+    raw_date = split_row[retrosheet_schema.DATE]
     (year, month, day) = year_month_day_from_raw(raw_date)
 
     return Game(home_team, away_team, home_score, away_score, year, month, day, BLANK_GAME_ID)
 
+'''
+Take yyyymmdd and return (yyyy, mm, dd)
+'''
 def year_month_day_from_raw(raw_date):
     year = raw_date[:4]
     month = raw_date[4:6]
@@ -207,7 +138,11 @@ class Game(object):
         d -- one digit game number (either 1 or 2)
     '''
     def calculate_raw_game_id(self):
-        pass
+        
+        return GAME_ID_BASE.format(
+            y = self.year,
+            m = self.month,
+            d = self.date)
 
 
 # TODO: self.__dict__ should work here, same w/ vars(self)

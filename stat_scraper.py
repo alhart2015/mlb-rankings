@@ -33,7 +33,9 @@ def pull_games_for_day(year, month, day):
     api_url = scoreboard_url_for_date(year, month, day)
 
     # Make a request to the mlb GameDay API
+    print 'Pinging the MLB GameDay API...'
     response = requests.get(api_url)
+    print 'Response received'
     # NOTE: If you forget what info is here, print response.content
     # to see what the xml looks like.
 
@@ -41,10 +43,13 @@ def pull_games_for_day(year, month, day):
     # in code or a note somewhere.
 
     # parse the response into an xml tree
+    print 'Parsing response XML'
     parsed_scoreboard = ElementTree.fromstring(response.content)
+    print 'Response parsed'
     
     games = []
 
+    print 'Generating Games'
     for game_xml_wrapper in parsed_scoreboard:
         found_home_team = False
         for game_info in game_xml_wrapper:
@@ -65,6 +70,7 @@ def pull_games_for_day(year, month, day):
         game_obj = Game.Game(home_full_name, away_full_name, home_score, away_score)
         games.append(game_obj)
 
+    print 'Finished geerating Games'
     return games
 
 '''
