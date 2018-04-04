@@ -4,6 +4,8 @@ and usually in some kind of appreviation. This is a collection of all of
 those.
 '''
 
+# TODO: Get rid of these and just use the team_info table
+
 RETROSHEET_NICKNAMES = {
     "ANA" : "Los Angeles Angels",
     "ARI" : "Arizona Diamondbacks",

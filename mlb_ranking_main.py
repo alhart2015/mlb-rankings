@@ -3,11 +3,12 @@ The goal is to develop a power rankings for MLB.
 
 Roughly based on ELO? Idk.
 '''
-from Game import Game, game_from_split_row
+from Game import Game, game_from_split_row, game_from_db_row
 from Team import Team
 
 import database_manager
 import rating_utils
+import sqlite3
 
 '''
 Take the raw game data file, open it, pull out the fields you care about,
@@ -119,7 +120,17 @@ def regress_to_mean_between_years(teams):
     
 
 def main():
-    game_data_2017 = read_game_data('data/GL2017.txt')
+
+    print 'Connecting to SQLite DB'
+    db = sqlite3.connect(database_manager.DB_LOCATION)
+    cursor = db.cursor()
+    print 'Connected'
+
+    # game_data_2017 = read_game_data('data/GL2017.txt')
+
+    print 'Getting game data from db'
+    game_db_data_2017 = cursor.execute('SELECT * FROM games WHERE year = 2017')
+    game_data_2017 = [game_from_db_row(row) for row in game_db_data_2017]
 
     teams_2017 = create_league_from_games(game_data_2017)
 

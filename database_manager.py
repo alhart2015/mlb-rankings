@@ -8,6 +8,10 @@ import sqlite3
 
 DB_LOCATION = 'data/sqlite_db'
 
+# TODO: make the table names constants
+
+# TODO: make schemas constants too
+
 CREATE_GAMES_TABLE = '''CREATE TABLE games(
     game_id         TEXT PRIMARY KEY,
     year            INTEGER,
@@ -76,7 +80,7 @@ def add_games_to_db(games):
         except sqlite3.IntegrityError:
             # we've already seen this game_id, skip it
             games_skipped += 1
-    print 'Finished adding games'
+    print 'Finished adding {0} games'.format(len(games) - games_skipped)
     print 'Skipped {0} games'.format(games_skipped)
 
     db.commit()
@@ -126,7 +130,7 @@ def main():
     # object to execute them. 
     cursor = db.cursor()
     # cursor.execute(CREATE_GAMES_TABLE)
-    
+
     #Finally it is necessary to commit the changes. 
     db.commit()
     # When we are done working with the DB we need to close the connection

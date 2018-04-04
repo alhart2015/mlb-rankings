@@ -44,6 +44,23 @@ def game_from_split_row(split_row):
         game_id = BLANK_GAME_ID)
 
 '''
+Create a Game object from the stuff returned from the games table
+'''
+def game_from_db_row(row):
+    return Game(
+        game_id = str(row[0]),
+        year = row[1],
+        month = row[2],
+        day = row[3],
+        home_team = str(row[4]),
+        home_team_code = str(row[5]),
+        away_team = str(row[6]),
+        away_team_code = str(row[7]),
+        home_score = row[8],
+        away_score = row[9]
+    )
+
+'''
 Take yyyymmdd and return (yyyy, mm, dd)
 '''
 def year_month_day_from_raw(raw_date):
