@@ -37,7 +37,8 @@ def read_game_data(filename):
 '''
 Given a list of every single game played, group those into teams and update
 the wins, losses, and rating of the team. Note that shit will get weird if
-you give this function more than one season's worth of data.
+you give this function more than one season's worth of data. We'll also take
+this opportunity to calculate the game_id for each game.
 
 @param game_data - a list of all the Games in a season
 
@@ -46,6 +47,7 @@ you give this function more than one season's worth of data.
 '''
 def create_league_from_games(game_data):
     teams = {}
+    game_ids = {}
 
     for game in game_data:
         home_team_name = game.home_team

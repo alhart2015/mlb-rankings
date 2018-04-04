@@ -75,6 +75,7 @@ MLB_CLUB_NAMES = {
 }
 
 BLANK_GAME_ID = 'blank_game_id'
+GAME_ID_BASE = 'gid_{y}_{m:02d}_{d:02d}_{atc}{asc}_{htc}{hsc}_{d}'
 
 '''
 Constructor when you only want to pass in a split_row. This'll leave
@@ -96,28 +97,27 @@ def game_from_split_row(split_row):
     away_score = int(split_row[VISITING_TEAM_SCORE])
 
     raw_date = split_row[DATE]
-    parsed_date = delimited_rate_from_raw(raw_date)
+    (year, month, day) = year_month_day_from_raw(raw_date)
 
-    return Game(home_team, away_team, home_score, away_score, parsed_date, BLANK_GAME_ID)
+    return Game(home_team, away_team, home_score, away_score, year, month, day, BLANK_GAME_ID)
 
-def delimited_rate_from_raw(raw_date):
+def year_month_day_from_raw(raw_date):
     year = raw_date[:4]
     month = raw_date[4:6]
     day = raw_date[6:8]
 
-    return '{y}-{m}-{d}'.format(
-        y = year,
-        m = month,
-        d = day)
+    return (year, month, day)
 
 class Game(object):
     """Represents a single game in the season"""
-    def __init__(self, home_team, away_team, home_score, away_score, date, game_id):
+    def __init__(self, home_team, away_team, home_score, away_score, year, month, day, game_id):
         self.home_team = home_team
         self.away_team = away_team
         self.home_score = int(home_score)
         self.away_score = int(away_score)
-        self.date = date
+        self.year = year
+        self.month = month
+        self.day = day
         self.game_id = game_id
 
     '''
@@ -127,13 +127,15 @@ class Game(object):
     in Java
     '''
     def __str__(self):
-        return 'Game {gid} on {dt}: {a} @ {h}, {asc}-{hsc}'.format(
+        return 'Game {gid} on {y}-{m}-{d}: {a} @ {h}, {asc}-{hsc}'.format(
             a = self.away_team, 
             h = self.home_team, 
             asc = self.away_score, 
             hsc = self.home_score,
             gid = self.game_id,
-            dt = self.date
+            y = self.year,
+            m = self.month,
+            d = self.day
         )
 
     '''
@@ -186,6 +188,26 @@ class Game(object):
             away_team.run_differential += score_diff
 
         return (home_team, away_team)
+
+    '''
+    Calculate the game_id based on the date. It is VERY IMPORTANT to note
+    that this is NOT the actual game_id, since that depends on whether or
+    not this game was part of a double header, something we don't know
+    from just the information stored in Game.
+
+    It always takes the form gid_YYYY_MM_DD_atcasc_htchsc_d
+
+        YYYY -- four digit year (same as year component)
+        MM -- two digit month (same as month component)
+        DD -- two digit day (same as day component)
+        atc -- three-letter away team code
+        asc -- three-letter away team sport code
+        htc -- three-letter home team code
+        hsc -- three-letter home team sport code
+        d -- one digit game number (either 1 or 2)
+    '''
+    def calculate_raw_game_id(self):
+        pass
 
 
 # TODO: self.__dict__ should work here, same w/ vars(self)
