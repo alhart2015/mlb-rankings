@@ -20,8 +20,10 @@ to handle yyyy-mm-dd format.
 def game_from_split_row(split_row):
     raw_home_team = split_row[retrosheet_schema.HOME_TEAM]
     home_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_home_team]
+    home_team_code = team_name_lookups.MLB_TEAM_TO_CODE[home_team]
     raw_away_team = split_row[retrosheet_schema.VISITING_TEAM]
     away_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_away_team]
+    away_team_code = team_name_lookups.MLB_TEAM_TO_CODE[away_team]
 
     home_score = int(split_row[retrosheet_schema.HOME_TEAM_SCORE])
     away_score = int(split_row[retrosheet_schema.VISITING_TEAM_SCORE])
@@ -29,7 +31,17 @@ def game_from_split_row(split_row):
     raw_date = split_row[retrosheet_schema.DATE]
     (year, month, day) = year_month_day_from_raw(raw_date)
 
-    return Game(home_team, away_team, home_score, away_score, year, month, day, BLANK_GAME_ID)
+    return Game(
+        home_team = home_team,
+        home_team_code = home_team_code,
+        away_team = away_team,
+        away_team_code = away_team_code,
+        home_score = home_score,
+        away_score = away_score,
+        year = year,
+        month = month,
+        day = day,
+        game_id = BLANK_GAME_ID)
 
 '''
 Take yyyymmdd and return (yyyy, mm, dd)
@@ -43,7 +55,7 @@ def year_month_day_from_raw(raw_date):
 
 class Game(object):
     """Represents a single game in the season"""
-    def __init__(self, home_team, away_team, home_score, away_score, year, month, day, game_id):
+    def __init__(self, home_team, away_team, home_score, away_score, year, month, day, game_id, home_team_code, away_team_code):
         self.home_team = home_team
         self.away_team = away_team
         self.home_score = int(home_score)
@@ -52,6 +64,8 @@ class Game(object):
         self.month = month
         self.day = day
         self.game_id = game_id
+        self.home_team_code = home_team_code
+        self.away_team_code = away_team_code
 
     '''
     Get a string representation of the Game object. We do this so we can
@@ -60,7 +74,7 @@ class Game(object):
     in Java
     '''
     def __str__(self):
-        return 'Game {gid} on {y}-{m}-{d}: {a} @ {h}, {asc}-{hsc}'.format(
+        return 'Game {gid} on {y}-{m}-{d}: {a} ({atc}) @ {h} ({htc}), {asc}-{hsc}'.format(
             a = self.away_team, 
             h = self.home_team, 
             asc = self.away_score, 
@@ -68,7 +82,9 @@ class Game(object):
             gid = self.game_id,
             y = self.year,
             m = self.month,
-            d = self.day
+            d = self.day,
+            atc = self.away_team_code,
+            htc = self.home_team_code
         )
 
     '''
@@ -141,8 +157,8 @@ class Game(object):
     '''
     def calculate_raw_game_id(self):
 
-        away_team_code = team_name_lookups.MLB_TEAM_TO_CODE[self.away_team]
-        home_team_code = team_name_lookups.MLB_TEAM_TO_CODE[self.home_team]
+        away_team_code = self.away_team_code
+        home_team_code = self.home_team_code
         
         return GAME_ID_BASE.format(
             y = self.year,

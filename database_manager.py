@@ -9,14 +9,16 @@ import sqlite3
 DB_LOCATION = 'data/sqlite_db'
 
 CREATE_GAMES_TABLE = '''CREATE TABLE games(
-    game_id    TEXT PRIMARY KEY,
-    year       INTEGER,
-    month      INTEGER,
-    day        INTEGER,
-    home_team  TEXT,
-    away_team  TEXT,
-    home_score INTEGER,
-    away_score INTEGER
+    game_id         TEXT PRIMARY KEY,
+    year            INTEGER,
+    month           INTEGER,
+    day             INTEGER,
+    home_team       TEXT,
+    home_team_code  TEXT,
+    away_team       TEXT,
+    away_team_code  TEXT,
+    home_score      INTEGER,
+    away_score      INTEGER
 )
 '''
 
@@ -26,7 +28,9 @@ INSERT_GAME_STATEMENT = '''INSERT INTO games VALUES(
     :month,
     :day,
     :home_team,
+    :home_team_code,
     :away_team,
+    :away_team_code,
     :home_score,
     :away_score
 )
@@ -54,6 +58,7 @@ def add_games_to_db(games):
         try:
             cursor.execute(INSERT_GAME_STATEMENT, vars(game))
         except sqlite3.IntegrityError:
+            # we've already seen this game_id, skip it
             games_skipped += 1
     print 'Finished adding games'
     print 'Skipped {0} games'.format(games_skipped)
@@ -71,7 +76,7 @@ def main():
     # get a cursor object and pass the SQL statements to the cursor 
     # object to execute them. 
     cursor = db.cursor()
-    # cursor.execute(CREATE_GAMES_TABLE)
+    cursor.execute(CREATE_GAMES_TABLE)
 
     #Finally it is necessary to commit the changes. 
     db.commit()
