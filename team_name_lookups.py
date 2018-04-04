@@ -24,7 +24,7 @@ RETROSHEET_NICKNAMES = {
     "MIN" : "Minnesota Twins",
     "NYA" : "New York Yankees",
     "NYN" : "New York Mets",
-    "OAK" : "Oakland A's",
+    "OAK" : "Oakland Athletics",
     "PHI" : "Philadelphia Phillies",
     "PIT" : "Pittsburgh Pirates",
     "SDN" : "San Diego Padres",
@@ -57,7 +57,7 @@ MLB_CLUB_NAMES = {
     "Twins" : "Minnesota Twins",
     "Yankees" : "New York Yankees",
     "Mets" : "New York Mets",
-    "Athletics" : "Oakland A's",
+    "Athletics" : "Oakland Athletics",
     "Phillies" : "Philadelphia Phillies",
     "Pirates" : "Pittsburgh Pirates",
     "Padres" : "San Diego Padres",
@@ -69,3 +69,38 @@ MLB_CLUB_NAMES = {
     "Blue Jays" : "Toronto Blue Jays",
     "Nationals" : "Washington Nationals"
 }
+
+MLB_CODE_TO_TEAM = {
+    'ana' : 'Los Angeles Angels',
+    'ari' : 'Arizona Diamondbacks',
+    'bal' : 'Baltimore Orioles',
+    'bos' : 'Boston Red Sox',
+    'chn' : 'Chicago Cubs',
+    'cin' : 'Cincinnati Reds',
+    'cle' : 'Cleveland Indians',
+    'col' : 'Colorado Rockies',
+    'det' : 'Detroit Tigers',
+    'hou' : 'Houston Astros',
+    'kca' : 'Kansas City Royals',
+    'lan' : 'Los Angeles Dodgers',
+    'was' : 'Washington Nationals',
+    'nyn' : 'New York Mets',
+    'oak' : 'Oakland Athletics',
+    'pit' : 'Pittsburgh Pirates',
+    'sdn' : 'San Diego Padres',
+    'sea' : 'Seattle Mariners',
+    'sfn' : 'San Francisco Giants',
+    'sln' : 'St. Louis Cardinals',
+    'tba' : 'Tampa Bay Rays',
+    'tex' : 'Texas Rangers',
+    'tor' : 'Toronto Blue Jays',
+    'min' : 'Minnesota Twins',
+    'phi' : 'Philadelphia Phillies',
+    'atl' : 'Atlanta Braves',
+    'cha' : 'Chicago White Sox',
+    'mia' : 'Miami Marlins',
+    'nya' : 'New York Yankees',
+    'mil' : 'Milwaukee Brewers'
+}
+
+MLB_TEAM_TO_CODE = dict((v, k) for k, v in MLB_CODE_TO_TEAM.iteritems())
