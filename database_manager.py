@@ -58,6 +58,21 @@ INSERT_TEAM_INFO_STATEMENT = '''INSERT INTO team_info VALUES(
 )
 '''
 
+CREATE_TEAM_RATING_TABLE = '''CREATE TABLE team_ratings(
+    team_id         INTEGER PRIMARY KEY,
+    name            TEXT,
+    wins            INTEGER,
+    losses          INTEGER,
+    date            DATE,
+    run_diff        INTEGER,
+    rating          NUMERIC
+)
+'''
+
+INSERT_TEAM_RATING_STATEMENT = '''INSERT INTO team_ratings VALUES(
+    ?,?,?,?,?,?,?
+)'''
+
 '''
 Add a list of games to the database. If a game_id exists in the table
 already, don't try to add it again. Doubleheaders should already be

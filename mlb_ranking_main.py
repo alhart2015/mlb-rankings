@@ -13,6 +13,7 @@ import database_manager
 import rating_utils
 import sqlite3
 import stat_scraper
+import sys
 
 OPENING_DAY_2018 = date(2018, 03, 29)
 
@@ -152,18 +153,18 @@ games for that day, we'll just assume that they're all there. This will be
 much faster than thorough_check = True, but it's possible it could be an
 unsafe assumption if something went wrong that we don't know about.
 
-@param today - datetime.date - the day through which you'll get games for
+@param end_date - datetime.date - the day through which you'll get games for
 @param opening_day - datetime.date - the opening day for the year you're in
 @param thorough_check - boolean - described above. Whether to do a slow or fast fill.
 @param db - the database
 
 @return None
 '''
-def fill_current_season_games(today, opening_day, thorough_check, db):
+def fill_current_season_games(end_date, opening_day, thorough_check, db):
 
     cursor = db.cursor()
 
-    date_delta = today - opening_day
+    date_delta = end_date - opening_day
 
     for i in range(date_delta.days + 1):
         current_day = opening_day + timedelta(i)
@@ -232,7 +233,11 @@ def main():
     # TODO update ratings from 2018 results
 
     # TODO have the date be a command line option probably
-    fill_current_season_games(date(2018, 4, 25), OPENING_DAY_2018, False, db)
+    fill_current_season_games(
+        end_date=date(2018, 5, 10), 
+        opening_day=OPENING_DAY_2018, 
+        thorough_check=False, 
+        db=db)
 
     games_db_2018 = cursor.execute('SELECT * FROM games WHERE year = 2018')
     games_2018 = [game_from_db_row(row) for row in games_db_2018]
