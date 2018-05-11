@@ -26,6 +26,7 @@ def create_league_from_games(game_data, formula):
     teams = {}
 
     nats_elo = []
+    braves_elo = []
 
     for game in game_data:
         home_team_name = game.home_team
@@ -79,7 +80,12 @@ def create_league_from_games(game_data, formula):
         elif away_team.name == 'Washington Nationals':
             nats_elo.append(away_team.rating)
 
-    return (teams, nats_elo)
+        if home_team.name == 'Atlanta Braves':
+            braves_elo.append(home_team.rating)
+        elif away_team.name == 'Atlanta Braves':
+            braves_elo.append(away_team.rating)
+
+    return (teams, nats_elo, braves_elo)
 
 '''
 Plot an arbitrary number of elos over time.
@@ -114,21 +120,21 @@ def plot_elos_over_time(colors, labels, scores):
 def main():
     game_data = mlb_ranking_main.read_game_data('data/GL2017.txt')
 
-    (basic_elo_teams, basic_nats) = create_league_from_games(game_data, rating_utils.VANILLA_ELO)
+    (basic_elo_teams, basic_nats, basic_braves) = create_league_from_games(game_data, rating_utils.VANILLA_ELO)
     mlb_ranking_main.print_sorted_by_rating_desc(basic_elo_teams)
 
     print "-----------------------------"
-    (score_elo_teams, score_nats) = create_league_from_games(game_data, rating_utils.SCORE_BASED_ELO)
+    (score_elo_teams, score_nats, score_braves) = create_league_from_games(game_data, rating_utils.SCORE_BASED_ELO)
     mlb_ranking_main.print_sorted_by_rating_desc(score_elo_teams)
 
     print "-----------------------------"
-    (scaled_elo_teams, scaled_nats) = create_league_from_games(game_data, rating_utils.SCALED_RATING)
+    (scaled_elo_teams, scaled_nats, scaled_braves) = create_league_from_games(game_data, rating_utils.SCALED_RATING)
     mlb_ranking_main.print_sorted_by_rating_desc(scaled_elo_teams)
 
     plot_elos_over_time(
-        colors = ['r', 'b', 'g'], 
-        labels = ['score-based', 'basic', 'scaled'],
-        scores = [score_nats, basic_nats, scaled_nats])
+        colors = ['r', 'b', 'g', 'y', 'c', 'm'], 
+        labels = ['score-based-nats', 'basic-nats', 'scaled-nats', 'score-based-braves', 'scaled-braves', 'basic-braves'],
+        scores = [score_nats, basic_nats, scaled_nats, score_braves, basic_braves, scaled_braves])
 
 
 if __name__ == '__main__':

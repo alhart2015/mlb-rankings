@@ -8,6 +8,7 @@ from Team import Team
 
 from datetime import date, timedelta
 
+import copy
 import database_manager
 import rating_utils
 import sqlite3
@@ -61,6 +62,8 @@ this opportunity to calculate the game_id for each game.
 @return a dictionary of team_name (string) -> Team object with records and
     ratings current
 '''
+RATING_TO_USE = rating_utils.SCALED_RATING
+
 def create_league_from_games(game_data):
     teams = {}
 
@@ -80,7 +83,7 @@ def create_league_from_games(game_data):
         home_team = teams[home_team_name]
         away_team = teams[away_team_name]
 
-        home_team, away_team = game.update_teams(home_team, away_team, rating_utils.SCALED_RATING)
+        home_team, away_team = game.update_teams(home_team, away_team, RATING_TO_USE)
 
         teams[home_team_name] = home_team
         teams[away_team_name] = away_team
@@ -107,6 +110,19 @@ def print_sorted_by_rating_desc(teams):
     # series of (i, (name, Team)) nested tuples. This then prints i and Team.
     for i, tup in enumerate(sorted_teams):
         print i+1, tup[1]
+
+def print_with_diff(teams_now, teams_start):
+
+    sorted_teams = sorted(teams_now.iteritems(), key = lambda (k, v): (v.rating, k), reverse = True)
+
+    # enumerate() is a builtin function that takes a list and returns a list of
+    # (i, value) tuples, where i is the index of value in the list. In this case,
+    # since sorted_teams is a list of (name, Team) tuples, enumerate gives us a
+    # series of (i, (name, Team)) nested tuples. This then prints i and Team.
+    for i, tup in enumerate(sorted_teams):
+        team = tup[1]
+        start_team = teams_start[team.name]
+        print i+1, team, team.rating-start_team.rating
 
 '''
 I'm torn on whether I like automatically regressing to the mean, but 538 does it
@@ -154,6 +170,8 @@ def fill_current_season_games(today, opening_day, thorough_check, db):
 
         if thorough_check:
             # Pull from the api for every day
+
+            #TODO: this
             pass
         else:
             # Check in the database for games for that day
@@ -170,6 +188,22 @@ def fill_current_season_games(today, opening_day, thorough_check, db):
                 # there are no games found for this date, so ping the API
                 games = stat_scraper.pull_games_for_day(current_day.year, current_day.month, current_day.day)
                 database_manager.add_games_to_db(games, db)
+            else:
+                print 'Found games for {0}, skipping'.format(current_day)
+
+'''
+Update the given teams with the result of the passed games
+'''
+def update_ratings(teams, games):
+    for game in games:
+        home_team = teams[game.home_team]
+        away_team = teams[game.away_team]
+
+        home_team, away_team = game.update_teams(home_team, away_team, RATING_TO_USE)
+        teams[game.home_team] = home_team
+        teams[game.away_team] = away_team
+
+    return teams
 
 def main():
 
@@ -190,13 +224,20 @@ def main():
     print_sorted_by_rating_desc(teams_2017)
 
     print '------------------'
-    print 'Ratings in 2018'
+    print 'Ratings at start of 2018'
     teams_2018 = regress_to_mean_between_years(teams_2017)
+    saved_teams = copy.deepcopy(teams_2018)
     print_sorted_by_rating_desc(teams_2018)
 
-    # database_manager.add_games_to_db(game_data_2017)
+    # TODO update ratings from 2018 results
 
-    fill_current_season_games(date(2018, 4, 4), OPENING_DAY_2018, False, db)
+    # TODO have the date be a command line option probably
+    fill_current_season_games(date(2018, 4, 25), OPENING_DAY_2018, False, db)
+
+    games_db_2018 = cursor.execute('SELECT * FROM games WHERE year = 2018')
+    games_2018 = [game_from_db_row(row) for row in games_db_2018]
+    current_teams = update_ratings(teams_2018, games_2018)
+    print_with_diff(current_teams, saved_teams)
 
     db.commit()
     db.close()

@@ -8,6 +8,8 @@ import sqlite3
 
 DB_LOCATION = 'data/sqlite_db'
 
+TEAM_NAME_HEADER_CHECK = 'team_id'
+
 # TODO: make the table names constants
 
 # TODO: make schemas constants too
@@ -102,7 +104,7 @@ def create_and_populate_team_info(filename, db):
             clean_row = row.strip()
             split_row = clean_row.split('|')
             # skip the header row
-            if split_row[0] != 'team_id':
+            if split_row[0] != TEAM_NAME_HEADER_CHECK:
                 # convert the team_id to an int
                 split_row[0] = int(split_row[0])
                 # add the row to the database
