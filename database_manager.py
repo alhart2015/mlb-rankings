@@ -11,6 +11,9 @@ DB_LOCATION = 'data/sqlite_db'
 TEAM_NAME_HEADER_CHECK = 'team_id'
 
 # TODO: make the table names constants
+GAMES_TABLE_NAME = 'games'
+TEAM_INFO_TABLE_NAME = 'team_info'
+TEAM_RATING_TABLE_NAME = 'team_ratings'
 
 # TODO: make schemas constants too
 
@@ -73,6 +76,8 @@ CREATE_TEAM_RATING_TABLE = '''CREATE TABLE IF NOT EXISTS team_ratings(
 INSERT_TEAM_RATING_STATEMENT = '''INSERT INTO team_ratings VALUES(
     ?,?,?,?,?,?,?
 )'''
+
+CHECK_EXISTING_TABLES_QUERY = """SELECT name FROM sqlite_master WHERE type='table'"""
 
 '''
 Add a list of games to the database. If a game_id exists in the table

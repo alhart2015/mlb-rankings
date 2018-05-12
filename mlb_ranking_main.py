@@ -218,6 +218,14 @@ def update_ratings(teams, games):
 #   2) populate the tables through the specified date
 #       - the date should be specified by the command line
 
+def create_table_if_not_exists(cursor, table_name, create_table_statement, tables_that_exist):
+    if table_name not in tables_that_exist:
+        print 'No table named {0} found, creating...'.format(table_name)
+        cursor.execute(create_table_statement)
+        print 'Created table: {0}'.format(table_name)
+    else:
+        print 'Table {0} already exists. Skipping.'.format(table_name)
+    
 '''
 This function will get your setup to current from whatever state it's in. Possible
 states are none (you have never run this before) or out of date (you ran this a
@@ -235,7 +243,36 @@ while ago). This function will:
 @param db: the name and location of the SQLite database to store this in
 '''
 def full_run(date, db):
-    print 'running for', date
+    print 'Running for', date
+
+    cursor = db.cursor()
+
+    # Check which tables exist
+    tables_that_exist_raw = cursor.execute(database_manager.CHECK_EXISTING_TABLES_QUERY)
+    tables_that_exist = {str(row[0]) for row in tables_that_exist_raw}
+
+    # Create the ones that don't exist
+    create_table_if_not_exists(
+        cursor=cursor,
+        table_name=database_manager.GAMES_TABLE_NAME,
+        create_table_statement=database_manager.CREATE_GAMES_TABLE,
+        tables_that_exist=tables_that_exist
+    )
+    create_table_if_not_exists(
+        cursor=cursor,
+        table_name=database_manager.TEAM_INFO_TABLE_NAME,
+        create_table_statement=database_manager.CREATE_TEAM_INFO_TABLE,
+        tables_that_exist=tables_that_exist
+    )
+    create_table_if_not_exists(
+        cursor=cursor,
+        table_name=database_manager.TEAM_RATING_TABLE_NAME,
+        create_table_statement=database_manager.CREATE_TEAM_RATING_TABLE,
+        tables_that_exist=tables_that_exist
+    )
+
+    db.commit()
+    db.close()
 
 def usage():
     print '''
