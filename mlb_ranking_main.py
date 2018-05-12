@@ -6,16 +6,15 @@ Roughly based on ELO? Idk.
 from Game import Game, game_from_split_row, game_from_db_row
 from Team import Team
 
-from datetime import date, timedelta
-
 import argparse
 import copy
 import database_manager
+import datetime
 import rating_utils
 import sqlite3
 import stat_scraper
 
-OPENING_DAY_2018 = date(2018, 03, 29)
+OPENING_DAY_2018 = datetime.date(2018, 03, 29)
 NO_DATE_ARG = 'no_date_arg'
 
 '''
@@ -168,7 +167,7 @@ def fill_current_season_games(end_date, opening_day, thorough_check, db):
     date_delta = end_date - opening_day
 
     for i in range(date_delta.days + 1):
-        current_day = opening_day + timedelta(i)
+        current_day = opening_day + datetime.timedelta(i)
 
         if thorough_check:
             # Pull from the api for every day
@@ -235,7 +234,7 @@ while ago). This function will:
 @param db: the name and location of the SQLite database to store this in
 '''
 def full_run(date, db):
-    pass
+    print 'running for', date
 
 def usage():
     print '''
@@ -256,14 +255,30 @@ def main():
     usage()
 
     parser = argparse.ArgumentParser(description='MLB Ranking Argument Parser')
-    parser.add_argument('--date', action='store', default=NO_DATE_ARG)
-    parser.add_argument('--db_loc', action='store', default=database_manager.DB_LOCATION)
-    print parser.parse_args()
+    parser.add_argument(
+        '--date', 
+        action='store', 
+        default=NO_DATE_ARG,
+        help='The latest date to run for. Default is yesterday.'
+        )
+    parser.add_argument(
+        '--db_loc', 
+        action='store', 
+        default=database_manager.DB_LOCATION,
+        help='The location of the SQLite database. Default is {0}'.format(database_manager.DB_LOCATION))
+    parsed_args = parser.parse_args()
 
-    # print 'Connecting to SQLite DB'
-    # db = sqlite3.connect(database_manager.DB_LOCATION)
+    print 'Connecting to SQLite DB'
+    db = sqlite3.connect(parsed_args.db_loc)
     # cursor = db.cursor()
-    # print 'Connected'
+    print 'Connected'
+
+    # default to run for yesterday
+    date_to_run = datetime.date.today() - datetime.timedelta(1)
+    if parsed_args.date != NO_DATE_ARG:
+        date_to_run = datetime.date(parsed_args.date)
+
+    full_run(date_to_run, db)
 
     # # game_data_2017 = read_game_data('data/GL2017.txt')
 
@@ -286,7 +301,7 @@ def main():
 
     # # TODO have the date be a command line option probably
     # fill_current_season_games(
-    #     end_date=date(2018, 5, 10), 
+    #     end_date=datetime.date(2018, 5, 10), 
     #     opening_day=OPENING_DAY_2018, 
     #     thorough_check=False, 
     #     db=db)
