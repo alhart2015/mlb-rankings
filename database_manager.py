@@ -14,7 +14,7 @@ TEAM_NAME_HEADER_CHECK = 'team_id'
 
 # TODO: make schemas constants too
 
-CREATE_GAMES_TABLE = '''CREATE TABLE games(
+CREATE_GAMES_TABLE = '''CREATE TABLE IF NOT EXISTS games(
     game_id         TEXT PRIMARY KEY,
     year            INTEGER,
     month           INTEGER,
@@ -42,7 +42,7 @@ INSERT_GAME_STATEMENT = '''INSERT INTO games VALUES(
 )
 '''
 
-CREATE_TEAM_INFO_TABLE = '''CREATE TABLE team_info(
+CREATE_TEAM_INFO_TABLE = '''CREATE TABLE IF NOT EXISTS team_info(
     team_id         INTEGER PRIMARY KEY,
     code            TEXT,
     file_code       TEXT,
@@ -58,7 +58,7 @@ INSERT_TEAM_INFO_STATEMENT = '''INSERT INTO team_info VALUES(
 )
 '''
 
-CREATE_TEAM_RATING_TABLE = '''CREATE TABLE team_ratings(
+CREATE_TEAM_RATING_TABLE = '''CREATE TABLE IF NOT EXISTS team_ratings(
     team_id         INTEGER,
     name            TEXT,
     wins            INTEGER,

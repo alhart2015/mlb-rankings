@@ -206,6 +206,36 @@ def update_ratings(teams, games):
 
     return teams
 
+# TODO: for ease of usage, there should be one function to:
+#   1) create all the tables:
+#       - games: the record of all games played that we know about
+#           - this gets read from a combination of the txt file and the MLB API
+#       - team_info:
+#           - team names and all the various identifying information from a file
+#       - team_ratings:
+#           - all ratings for all dates for all teams
+#   2) populate the tables through the specified date
+#       - the date should be specified by the command line
+
+'''
+This function will get your setup to current from whatever state it's in. Possible
+states are none (you have never run this before) or out of date (you ran this a
+while ago). This function will:
+    1) Create all the tables, or do nothing if they're already there. Tables to
+        create:
+        a) games: the record for all games played that we know about
+        b) team_info: team names and all the various identifying information we have
+        c) team_ratings: all ratings for all teams. By default this will not go
+                         further back than opening day, 2017.
+    2) Populate the tables with information up until the specified date
+
+@param date: the date to run for. All data up to and including this date will be
+             populated
+@param db: the name and location of the SQLite database to store this in
+'''
+def full_run(date, db):
+    pass
+
 def main():
 
     print 'Connecting to SQLite DB'
