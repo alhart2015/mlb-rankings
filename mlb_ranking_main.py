@@ -16,6 +16,7 @@ import stat_scraper
 
 OPENING_DAY_2018 = datetime.date(2018, 03, 29)
 NO_DATE_ARG = 'no_date_arg'
+DATE_REGEX = '%Y-%m-%d'
 
 '''
 Take the raw game data file, open it, pull out the fields you care about,
@@ -274,9 +275,16 @@ def main():
     print 'Connected'
 
     # default to run for yesterday
-    date_to_run = datetime.date.today() - datetime.timedelta(1)
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(1)
+    date_to_run = yesterday
+    # if a date was passed at the command line, parse that
     if parsed_args.date != NO_DATE_ARG:
-        date_to_run = datetime.date(parsed_args.date)
+        date_to_run = datetime.datetime.strptime(parsed_args.date, DATE_REGEX).date()
+
+    # as long as the given day is before yesterday, run it. otherwise die
+    if (yesterday - date_to_run).days < 0:
+        raise ValueError("""Date provided is too recent. It's either in the future or today, \nand games have not yet been completed for today. Please supply a \ndate in the past.""")
 
     full_run(date_to_run, db)
 
