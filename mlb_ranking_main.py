@@ -18,6 +18,8 @@ OPENING_DAY_2018 = datetime.date(2018, 03, 29)
 NO_DATE_ARG = 'no_date_arg'
 DATE_REGEX = '%Y-%m-%d'
 
+TEAM_INFO_FILENAME = 'data/team_info.txt'
+
 '''
 Take the raw game data file, open it, pull out the fields you care about,
 clean it up a bit, and turn those into Game objects
@@ -270,6 +272,36 @@ def full_run(date, db):
         create_table_statement=database_manager.CREATE_TEAM_RATING_TABLE,
         tables_that_exist=tables_that_exist
     )
+
+    # Check if the team info table has already been populated. Since team names don't
+    # change much, we'll say that if there are any rows in this table, all rows are there.
+    cursor.execute('''SELECT * FROM {0}'''.format(database_manager.TEAM_INFO_TABLE_NAME))
+    one_team = cursor.fetchone()
+    if one_team is None:
+        print 'Adding rows to team_info'
+        with open(TEAM_INFO_FILENAME, 'r') as f:
+            for row in f:
+                clean_row = row.strip()
+                split_row = clean_row.split('|')
+                # skip the header row
+                if split_row[0] != database_manager.TEAM_NAME_HEADER_CHECK:
+                    # convert the team_id to an int
+                    split_row[0] = int(split_row[0])
+                    # add the row to the database
+                    cursor.execute(database_manager.INSERT_TEAM_INFO_STATEMENT, split_row)
+    else:
+        print 'Team name table is populated.'
+
+    # Check if the games table has already been populated.
+
+    # Assumption: if there are games from 2017, it has been populated from the file,
+    # so we don't need to read the file.
+
+    # Check each day of 2018, populate the missing ones, and keep track of which ones
+    # got updated
+
+    # Check if the team rating table has been populated. Update the same set of days
+    # that got updated in the games table.
 
     db.commit()
     db.close()
