@@ -59,13 +59,14 @@ INSERT_TEAM_INFO_STATEMENT = '''INSERT INTO team_info VALUES(
 '''
 
 CREATE_TEAM_RATING_TABLE = '''CREATE TABLE team_ratings(
-    team_id         INTEGER PRIMARY KEY,
+    team_id         INTEGER,
     name            TEXT,
     wins            INTEGER,
     losses          INTEGER,
     date            DATE,
     run_diff        INTEGER,
-    rating          NUMERIC
+    rating          NUMERIC,
+    rating_type     TEXT
 )
 '''
 
@@ -142,6 +143,7 @@ def main():
     # object to execute them. 
     cursor = db.cursor()
     # cursor.execute(CREATE_GAMES_TABLE)
+    # cursor.execute(CREATE_TEAM_RATING_TABLE)
 
     #Finally it is necessary to commit the changes. 
     db.commit()
