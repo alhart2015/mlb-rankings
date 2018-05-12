@@ -17,8 +17,10 @@ import stat_scraper
 OPENING_DAY_2018 = datetime.date(2018, 03, 29)
 NO_DATE_ARG = 'no_date_arg'
 DATE_REGEX = '%Y-%m-%d'
+PIPE_DELIMITER = '|'
 
 TEAM_INFO_FILENAME = 'data/team_info.txt'
+FILENAME_2017 = 'data/GL2017.txt'
 
 '''
 Take the raw game data file, open it, pull out the fields you care about,
@@ -220,6 +222,56 @@ def update_ratings(teams, games):
 #   2) populate the tables through the specified date
 #       - the date should be specified by the command line
 
+
+'''
+This function will check every day since the provided opening day and make
+sure games for that day are in the database. For each day, if there are any
+games for that day, we'll just assume that they're all there. This will be
+a safe assumption as long as the table was populated from this function initially.
+
+@param end_date - datetime.date - the day through which you'll get games for
+@param opening_day - datetime.date - the opening day for the year you're in
+@param db - the database
+
+@return A list of the dates for which you added days
+'''
+def fill_table_through_date(end_date, opening_day, db):
+
+    cursor = db.cursor()
+
+    date_delta = end_date - opening_day
+    dates_added = []
+
+    for i in range(date_delta.days + 1):
+        current_day = opening_day + datetime.timedelta(i)
+
+        # Check in the database for games for that day
+        cursor.execute('''SELECT * FROM {0} WHERE year = ? AND
+                                                    month = ? AND
+                                                    day = ?'''.format(database_manager.GAMES_TABLE_NAME), 
+                        (current_day.year, 
+                         current_day.month,
+                         current_day.day))
+
+        one_game = cursor.fetchone()
+
+        if one_game is None:
+            # there are no games found for this date, so ping the API
+            games = stat_scraper.pull_games_for_day(current_day.year, current_day.month, current_day.day)
+            database_manager.add_games_to_db(games, db)
+            dates_added.append(current_day)
+
+    return dates_added
+
+
+'''
+Create the supplied table if it doesn't exist. If it does exist, do nothing.
+
+@param cursor: the sqlite cursor
+@param table_name: the string name of the table
+@param create_table_statement: the SQL statement to create the statement
+@param tables_that_exist: the set of table names that exist
+'''
 def create_table_if_not_exists(cursor, table_name, create_table_statement, tables_that_exist):
     if table_name not in tables_that_exist:
         print 'No table named {0} found, creating...'.format(table_name)
@@ -227,7 +279,15 @@ def create_table_if_not_exists(cursor, table_name, create_table_statement, table
         print 'Created table: {0}'.format(table_name)
     else:
         print 'Table {0} already exists. Skipping.'.format(table_name)
-    
+   
+'''
+Return true if the result of the select statement has >0 results, false otherwise.
+'''
+def statement_returns_rows(cursor, select_statement):
+    cursor.execute(select_statement)
+    one_row = cursor.fetchone()
+    return one_row is not None
+
 '''
 This function will get your setup to current from whatever state it's in. Possible
 states are none (you have never run this before) or out of date (you ran this a
@@ -275,33 +335,52 @@ def full_run(date, db):
 
     # Check if the team info table has already been populated. Since team names don't
     # change much, we'll say that if there are any rows in this table, all rows are there.
-    cursor.execute('''SELECT * FROM {0}'''.format(database_manager.TEAM_INFO_TABLE_NAME))
-    one_team = cursor.fetchone()
-    if one_team is None:
+    if statement_returns_rows(cursor, '''SELECT * FROM {0}'''.format(database_manager.TEAM_INFO_TABLE_NAME)):
+        print 'Team name table is populated. No need to add info.'
+    else:
         print 'Adding rows to team_info'
         with open(TEAM_INFO_FILENAME, 'r') as f:
             for row in f:
                 clean_row = row.strip()
-                split_row = clean_row.split('|')
+                split_row = clean_row.split(PIPE_DELIMITER)
                 # skip the header row
                 if split_row[0] != database_manager.TEAM_NAME_HEADER_CHECK:
                     # convert the team_id to an int
                     split_row[0] = int(split_row[0])
                     # add the row to the database
-                    cursor.execute(database_manager.INSERT_TEAM_INFO_STATEMENT, split_row)
-    else:
-        print 'Team name table is populated.'
+    
 
-    # Check if the games table has already been populated.
+    # Check if the games table has already been populated for 2017.
+    if statement_returns_rows(cursor, '''SELECT * FROM {0} WHERE year = 2017'''.format(database_manager.GAMES_TABLE_NAME)):
+        print 'Games table populated for 2017. Skipping.'
+    else:
+        print 'No games found in games table for 2017. Populating.'
+        games_for_2017 = read_game_data(FILENAME_2017)
+        database_manager.add_games_to_db(games_for_2017, db)
+        print 'Finished populating 2017 games.'
 
     # Assumption: if there are games from 2017, it has been populated from the file,
     # so we don't need to read the file.
 
+    # Check if the games table has already been populated for 2018.
+
     # Check each day of 2018, populate the missing ones, and keep track of which ones
     # got updated
+    games_added_in_2018 = fill_table_through_date(
+        end_date=date,
+        opening_day=OPENING_DAY_2018,
+        db=db
+        )
+    if len(games_added_in_2018) == 0:
+        print 'Games table up to date for 2018. 0 rows added.'
+
+    print games_added_in_2018
 
     # Check if the team rating table has been populated. Update the same set of days
     # that got updated in the games table.
+    for date in games_added_in_2018:
+        # update_team_ratings_for_date(date)
+        pass
 
     db.commit()
     db.close()
