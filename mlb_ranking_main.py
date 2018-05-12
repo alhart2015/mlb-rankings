@@ -8,14 +8,15 @@ from Team import Team
 
 from datetime import date, timedelta
 
+import argparse
 import copy
 import database_manager
 import rating_utils
 import sqlite3
 import stat_scraper
-import sys
 
 OPENING_DAY_2018 = date(2018, 03, 29)
+NO_DATE_ARG = 'no_date_arg'
 
 '''
 Take the raw game data file, open it, pull out the fields you care about,
@@ -236,46 +237,67 @@ while ago). This function will:
 def full_run(date, db):
     pass
 
+def usage():
+    print '''
+    Welcome to the MLB Rating Database.
+
+    Running mlb_ranking_main.py will create a SQLite database containing
+    game and team data, with team ratings from the start of 2017 through
+    the specified date. Example usage:
+
+    python mlb_ranking_main.py --date 2018-03-01 --db_loc data/sqlite_db
+    
+    If no arguments are passed, the program will run through the last full
+    day of games completed.
+    '''
+
 def main():
 
-    print 'Connecting to SQLite DB'
-    db = sqlite3.connect(database_manager.DB_LOCATION)
-    cursor = db.cursor()
-    print 'Connected'
+    usage()
 
-    # game_data_2017 = read_game_data('data/GL2017.txt')
+    parser = argparse.ArgumentParser(description='MLB Ranking Argument Parser')
+    parser.add_argument('--date', action='store', default=NO_DATE_ARG)
+    parser.add_argument('--db_loc', action='store', default=database_manager.DB_LOCATION)
+    print parser.parse_args()
 
-    print 'Getting game data from db'
-    game_db_data_2017 = cursor.execute('SELECT * FROM games WHERE year = 2017')
-    game_data_2017 = [game_from_db_row(row) for row in game_db_data_2017]
+    # print 'Connecting to SQLite DB'
+    # db = sqlite3.connect(database_manager.DB_LOCATION)
+    # cursor = db.cursor()
+    # print 'Connected'
 
-    teams_2017 = create_league_from_games(game_data_2017)
+    # # game_data_2017 = read_game_data('data/GL2017.txt')
 
-    print 'Ratings at the end of 2017'
-    print_sorted_by_rating_desc(teams_2017)
+    # print 'Getting game data from db'
+    # game_db_data_2017 = cursor.execute('SELECT * FROM games WHERE year = 2017')
+    # game_data_2017 = [game_from_db_row(row) for row in game_db_data_2017]
 
-    print '------------------'
-    print 'Ratings at start of 2018'
-    teams_2018 = regress_to_mean_between_years(teams_2017)
-    saved_teams = copy.deepcopy(teams_2018)
-    print_sorted_by_rating_desc(teams_2018)
+    # teams_2017 = create_league_from_games(game_data_2017)
 
-    # TODO update ratings from 2018 results
+    # print 'Ratings at the end of 2017'
+    # print_sorted_by_rating_desc(teams_2017)
 
-    # TODO have the date be a command line option probably
-    fill_current_season_games(
-        end_date=date(2018, 5, 10), 
-        opening_day=OPENING_DAY_2018, 
-        thorough_check=False, 
-        db=db)
+    # print '------------------'
+    # print 'Ratings at start of 2018'
+    # teams_2018 = regress_to_mean_between_years(teams_2017)
+    # saved_teams = copy.deepcopy(teams_2018)
+    # print_sorted_by_rating_desc(teams_2018)
 
-    games_db_2018 = cursor.execute('SELECT * FROM games WHERE year = 2018')
-    games_2018 = [game_from_db_row(row) for row in games_db_2018]
-    current_teams = update_ratings(teams_2018, games_2018)
-    print_with_diff(current_teams, saved_teams)
+    # # TODO update ratings from 2018 results
 
-    db.commit()
-    db.close()
+    # # TODO have the date be a command line option probably
+    # fill_current_season_games(
+    #     end_date=date(2018, 5, 10), 
+    #     opening_day=OPENING_DAY_2018, 
+    #     thorough_check=False, 
+    #     db=db)
+
+    # games_db_2018 = cursor.execute('SELECT * FROM games WHERE year = 2018')
+    # games_2018 = [game_from_db_row(row) for row in games_db_2018]
+    # current_teams = update_ratings(teams_2018, games_2018)
+    # print_with_diff(current_teams, saved_teams)
+
+    # db.commit()
+    # db.close()
 
 
 if __name__ == '__main__':
