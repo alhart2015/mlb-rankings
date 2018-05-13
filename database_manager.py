@@ -4,6 +4,7 @@ from the API for every day every time we want to run something for 2018.
 This should be a very small database, and we'll store it on disk.
 '''
 
+import datetime
 import sqlite3
 
 DB_LOCATION = 'data/sqlite_db'
@@ -86,6 +87,8 @@ handled at this point.
 
 @param games: a list of Games
 @param db: the database
+
+return: a List of dates added to the database
 '''
 def add_games_to_db(games, db):
 
@@ -93,15 +96,22 @@ def add_games_to_db(games, db):
 
     # Count the number of games we don't add because of duplicate keys
     games_skipped = 0
+    dates_added = {}
     print 'Adding {0} games'.format(len(games))
     for game in games:
         try:
             cursor.execute(INSERT_GAME_STATEMENT, vars(game))
+            game_date = datetime.date(int(game.year), int(game.month), int(game.day))
+            
+            if game_date not in dates_added:
+                dates_added[game_date] = 1
         except sqlite3.IntegrityError:
             # we've already seen this game_id, skip it
             games_skipped += 1
     print 'Finished adding {0} games'.format(len(games) - games_skipped)
     print 'Skipped {0} games'.format(games_skipped)
+
+    return [k for k, v in dates_added.iteritems()]
 
 
 '''

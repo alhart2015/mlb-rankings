@@ -14,7 +14,8 @@ import rating_utils
 import sqlite3
 import stat_scraper
 
-OPENING_DAY_2018 = datetime.date(2018, 03, 29)
+OPENING_DAY_2017 = datetime.date(2017, 4, 2)
+OPENING_DAY_2018 = datetime.date(2018, 3, 29)
 NO_DATE_ARG = 'no_date_arg'
 DATE_REGEX = '%Y-%m-%d'
 PIPE_DELIMITER = '|'
@@ -289,6 +290,17 @@ def statement_returns_rows(cursor, select_statement):
     return one_row is not None
 
 '''
+For each team in the team_info table, check to see if there's an entry in the
+team_ratings table. If there is, do nothing. If there isn't, make a new entry
+for opening day 2017. If we want to do historical data this will change.
+'''
+def initialize_teams(cursor):
+    print 'here'
+    teams = cursor.execute('SELECT code FROM team_info')
+    for team in teams:
+        print team
+
+'''
 This function will get your setup to current from whatever state it's in. Possible
 states are none (you have never run this before) or out of date (you ran this a
 while ago). This function will:
@@ -348,44 +360,48 @@ def full_run(date, db):
                     # convert the team_id to an int
                     split_row[0] = int(split_row[0])
                     # add the row to the database
+                    cursor.execute(database_manager.INSERT_TEAM_INFO_STATEMENT, split_row)
     
 
     # Check if the games table has already been populated for 2017.
+    # Assumption: if there are games from 2017, it has been populated from the file,
+    # so we don't need to read the file.
+    dates_added_2017 = []
     if statement_returns_rows(cursor, '''SELECT * FROM {0} WHERE year = 2017'''.format(database_manager.GAMES_TABLE_NAME)):
         print 'Games table populated for 2017. Skipping.'
     else:
         print 'No games found in games table for 2017. Populating.'
         games_for_2017 = read_game_data(FILENAME_2017)
-        database_manager.add_games_to_db(games_for_2017, db)
+        dates_added_2017 = database_manager.add_games_to_db(games_for_2017, db)
         print 'Finished populating 2017 games.'
 
-    # Assumption: if there are games from 2017, it has been populated from the file,
-    # so we don't need to read the file.
-
     # Check if the games table has already been populated for 2018.
-
     # Check each day of 2018, populate the missing ones, and keep track of which ones
     # got updated
-    games_added_in_2018 = fill_table_through_date(
+    dates_added_2018 = fill_table_through_date(
         end_date=date,
         opening_day=OPENING_DAY_2018,
         db=db
         )
-    if len(games_added_in_2018) == 0:
+    if len(dates_added_2018) == 0:
         print 'Games table up to date for 2018. 0 rows added.'
-
-    print games_added_in_2018
 
     # Check if the team rating table has been populated. Update the same set of days
     # that got updated in the games table.
-    for date in games_added_in_2018:
+    if len(dates_added_2017) > 0:
+        # initialize all teams at 1500
+        initialize_teams(cursor)
+
+        # for each day in the season, get the snapshot of each team's rating and run diff
+        pass
+    for date in dates_added_2018:
         # update_team_ratings_for_date(date)
         pass
 
     db.commit()
     db.close()
 
-def usage():
+def print_intro_text():
     print '''
     Welcome to the MLB Rating Database.
 
@@ -401,7 +417,7 @@ def usage():
 
 def main():
 
-    usage()
+    print_intro_text()
 
     parser = argparse.ArgumentParser(description='MLB Ranking Argument Parser')
     parser.add_argument(
