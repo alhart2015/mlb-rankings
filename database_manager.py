@@ -67,7 +67,9 @@ CREATE_TEAM_RATING_TABLE = '''CREATE TABLE IF NOT EXISTS team_ratings(
     name            TEXT,
     wins            INTEGER,
     losses          INTEGER,
-    date            DATE,
+    year            INTEGER,
+    month           INTEGER,
+    day             INTEGER,
     run_diff        INTEGER,
     rating          NUMERIC,
     rating_type     TEXT
@@ -75,8 +77,18 @@ CREATE_TEAM_RATING_TABLE = '''CREATE TABLE IF NOT EXISTS team_ratings(
 '''
 
 INSERT_TEAM_RATING_STATEMENT = '''INSERT INTO team_ratings VALUES(
-    ?,?,?,?,?,?,?
-)'''
+    :team_id,
+    :name,
+    :wins,
+    :losses,
+    :year,
+    :month,
+    :day,
+    :run_diff,
+    :rating,
+    :rating_type
+)
+'''
 
 CHECK_EXISTING_TABLES_QUERY = """SELECT name FROM sqlite_master WHERE type='table'"""
 
@@ -129,7 +141,7 @@ def create_and_populate_team_info(filename, db):
     cursor.execute(CREATE_TEAM_INFO_TABLE)
 
     num_rows_added = 0
-    print 'Adding rows to team_info'
+    print 'Adding rows to team_info...',
     with open(filename, 'r') as f:
         for row in f:
             clean_row = row.strip()
@@ -149,7 +161,7 @@ def create_and_populate_team_info(filename, db):
 
 def main():
     # Creates or opens the file that holds the database
-    print 'Connecting to the SQLite database'
+    print 'Connecting to the SQLite database...',
     db = sqlite3.connect(DB_LOCATION)
     print 'Connected'
 

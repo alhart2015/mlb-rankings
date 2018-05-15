@@ -8,7 +8,7 @@ class Team(object):
         self.wins = wins
         self.losses = losses
         self.rating = rating
-        self.run_differential = run_diff
+        self.run_diff = run_diff
 
     '''
     Constructor if we want to make a new, never-before-seen Team with no
@@ -19,7 +19,7 @@ class Team(object):
         self.wins = 0
         self.losses = 0
         self.rating = AVERAGE_RATING
-        self.run_differential = 0
+        self.run_diff = 0
     
     '''See Game.py for an explanation of why we do this'''
     def __str__(self):
@@ -28,7 +28,7 @@ class Team(object):
             self.wins,
             self.losses,
             self.rating,
-            self.run_differential
+            self.run_diff
         )
 
     '''See Game.py for an explanation of why we do this'''
@@ -62,6 +62,19 @@ class Team(object):
         new_team.rating = new_rating
         new_team.wins = 0
         new_team.losses = 0
-        new_team.run_differential = 0
+        new_team.run_diff = 0
 
         return new_team
+
+    '''
+    Return a dictionary with all fields needed to insert into the team_ratings
+    table.
+    '''
+    def team_rating_insert_dict(self, team_id, rating_type, year, month, day):
+        fields_dict = vars(self)
+        fields_dict['team_id'] = team_id
+        fields_dict['rating_type'] = rating_type
+        fields_dict['year'] = year
+        fields_dict['month'] = month
+        fields_dict['day'] = day
+        return fields_dict

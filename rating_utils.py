@@ -3,9 +3,10 @@ A collection of all of the ways we'll try and calculate ratings.
 '''
 
 # keep track of the formulas we've defined
-VANILLA_ELO = 0
-SCORE_BASED_ELO = 1
-SCALED_RATING = 2
+VANILLA_ELO = 'VANILLA_ELO'
+SCORE_BASED_ELO = 'SCORE_BASED_ELO'
+SCALED_RATING = 'SCALED_RATING'
+RATING_SYSTEMS = [VANILLA_ELO, SCORE_BASED_ELO, SCALED_RATING]
 
 BASE_K_VALUE = 2
 

@@ -294,11 +294,32 @@ For each team in the team_info table, check to see if there's an entry in the
 team_ratings table. If there is, do nothing. If there isn't, make a new entry
 for opening day 2017. If we want to do historical data this will change.
 '''
-def initialize_teams(cursor):
-    print 'here'
-    teams = cursor.execute('SELECT code FROM team_info')
-    for team in teams:
-        print team
+def initialize_teams(db):
+
+    # need to make two cursors because it won't iterate through twice or something
+    first_cursor = db.cursor()
+    teams = first_cursor.execute("""SELECT team_id, full_name FROM team_info WHERE full_name NOT LIKE '%All-Stars%'""")
+
+    second_cursor = db.cursor()
+    for (team_id, team_name) in teams:
+        for rating_system in rating_utils.RATING_SYSTEMS:
+            average_team = Team(team_name)
+            team_table_fields = average_team.team_rating_insert_dict(
+                team_id,
+                rating_system,
+                OPENING_DAY_2017.year,
+                OPENING_DAY_2017.month,
+                OPENING_DAY_2017.day
+            )
+            second_cursor.execute(database_manager.INSERT_TEAM_RATING_STATEMENT, team_table_fields)
+
+'''
+For the provided date, look up the games for that date. Then based on the result of
+the game, make a new row in the team_ratings table with the updated rating for each
+formula.
+'''
+def update_team_ratings_for_date(date):
+    pass
 
 '''
 This function will get your setup to current from whatever state it's in. Possible
@@ -390,7 +411,7 @@ def full_run(date, db):
     # that got updated in the games table.
     if len(dates_added_2017) > 0:
         # initialize all teams at 1500
-        initialize_teams(cursor)
+        initialize_teams(db)
 
         # for each day in the season, get the snapshot of each team's rating and run diff
         pass
@@ -433,7 +454,7 @@ def main():
         help='The location of the SQLite database. Default is {0}'.format(database_manager.DB_LOCATION))
     parsed_args = parser.parse_args()
 
-    print 'Connecting to SQLite DB'
+    print 'Connecting to SQLite DB...',
     db = sqlite3.connect(parsed_args.db_loc)
     # cursor = db.cursor()
     print 'Connected'
