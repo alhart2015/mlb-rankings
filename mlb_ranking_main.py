@@ -212,18 +212,6 @@ def update_ratings(teams, games):
 
     return teams
 
-# TODO: for ease of usage, there should be one function to:
-#   1) create all the tables:
-#       - games: the record of all games played that we know about
-#           - this gets read from a combination of the txt file and the MLB API
-#       - team_info:
-#           - team names and all the various identifying information from a file
-#       - team_ratings:
-#           - all ratings for all dates for all teams
-#   2) populate the tables through the specified date
-#       - the date should be specified by the command line
-
-
 '''
 This function will check every day since the provided opening day and make
 sure games for that day are in the database. For each day, if there are any
@@ -317,8 +305,13 @@ def initialize_teams(db):
 For the provided date, look up the games for that date. Then based on the result of
 the game, make a new row in the team_ratings table with the updated rating for each
 formula.
+
+@param date: the date of games you're using to update the rating. it is important to
+             note that this will be the same as the last date you have a rating for,
+             so you're going to write a row in the team_ratings database for the next
+             day
 '''
-def update_team_ratings_for_date(date):
+def update_team_ratings_for_date(date, db):
     pass
 
 '''
