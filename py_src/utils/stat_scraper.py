@@ -12,7 +12,7 @@ https://github.com/panzarino/mlbgame
 import requests
 from xml.etree import ElementTree
 
-from Game import Game
+from py_src.beans.Game import Game
 import team_name_lookups
 
 MLB_API_URL = 'http://gd.mlb.com/components/game/mlb/' \

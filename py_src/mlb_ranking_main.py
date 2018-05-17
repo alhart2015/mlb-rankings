@@ -3,16 +3,14 @@ The goal is to develop a power rankings for MLB.
 
 Roughly based on ELO? Idk.
 '''
-from Game import Game, game_from_split_row, game_from_db_row
-from Team import Team
+from py_src.beans.Game import game_from_split_row
+from py_src.beans.Team import Team
 
 import argparse
-import copy
-import database_manager
+from py_src.utils import database_manager, rating_utils
+from py_src.utils import stat_scraper
 import datetime
-import rating_utils
 import sqlite3
-import stat_scraper
 
 OPENING_DAY_2017 = datetime.date(2017, 4, 2)
 OPENING_DAY_2018 = datetime.date(2018, 3, 29)
@@ -237,8 +235,8 @@ def fill_table_through_date(end_date, opening_day, db):
         # Check in the database for games for that day
         cursor.execute('''SELECT * FROM {0} WHERE year = ? AND
                                                     month = ? AND
-                                                    day = ?'''.format(database_manager.GAMES_TABLE_NAME), 
-                        (current_day.year, 
+                                                    day = ?'''.format(database_manager.GAMES_TABLE_NAME),
+                       (current_day.year,
                          current_day.month,
                          current_day.day))
 
@@ -381,7 +379,8 @@ def full_run(date, db):
     # Assumption: if there are games from 2017, it has been populated from the file,
     # so we don't need to read the file.
     dates_added_2017 = []
-    if statement_returns_rows(cursor, '''SELECT * FROM {0} WHERE year = 2017'''.format(database_manager.GAMES_TABLE_NAME)):
+    if statement_returns_rows(cursor, '''SELECT * FROM {0} WHERE year = 2017'''.format(
+            database_manager.GAMES_TABLE_NAME)):
         print 'Games table populated for 2017. Skipping.'
     else:
         print 'No games found in games table for 2017. Populating.'
@@ -448,7 +447,10 @@ def main():
     parsed_args = parser.parse_args()
 
     print 'Connecting to SQLite DB...',
-    db = sqlite3.connect(parsed_args.db_loc)
+    try:
+        db = sqlite3.connect(parsed_args.db_loc)
+    except sqlite3.OperationalError:
+        raise sqlite3.OperationalError("Unable to open database file: " + parsed_args.db_loc)
     # cursor = db.cursor()
     print 'Connected'
 
