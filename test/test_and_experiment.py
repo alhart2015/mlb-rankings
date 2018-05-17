@@ -1,6 +1,6 @@
-'''
+"""
 This is a space for me to mess around and try things out.
-'''
+"""
 
 from py_src.beans.Team import Team
 
@@ -10,18 +10,18 @@ from py_src.utils import rating_utils
 import matplotlib.pyplot as plt
 
 
-'''
-Given a list of every single game played, group those into teams and update
-the wins, losses, and rating of the team. Note that shit will get weird if
-you give this function more than one season's worth of data.
-
-@param game_data - a list of all the Games in a season
-@param formula - one of the formulas in rating_utils
-
-@return a dictionary of team_name (string) -> Team object with records and
-    ratings current
-'''
 def create_league_from_games(game_data, formula):
+    """
+    Given a list of every single game played, group those into teams and update
+    the wins, losses, and rating of the team. Note that shit will get weird if
+    you give this function more than one season's worth of data.
+
+    @param game_data - a list of all the Games in a season
+    @param formula - one of the formulas in rating_utils
+
+    @return a dictionary of team_name (string) -> Team object with records and
+        ratings current
+    """
     teams = {}
 
     nats_elo = []
@@ -57,7 +57,6 @@ def create_league_from_games(game_data, formula):
         #                                                  game, 
         #                                                  formula)
 
-
         # else:
         #     home_team.losses += 1
         #     away_team.wins += 1
@@ -84,31 +83,32 @@ def create_league_from_games(game_data, formula):
         elif away_team.name == 'Atlanta Braves':
             braves_elo.append(away_team.rating)
 
-    return (teams, nats_elo, braves_elo)
+    return teams, nats_elo, braves_elo
 
-'''
-Plot an arbitrary number of elos over time.
 
-@param colors - List[String]. A list of valid pyplot colors.
-@param labels - List[String]. A list of valid pyplot line labels
-@param scores - List[List[Double]]. A list of a season (162 games) worth of elos
-'''
 def plot_elos_over_time(colors, labels, scores):
+    """
+    Plot an arbitrary number of elos over time.
+
+    @param colors - List[String]. A list of valid pyplot colors.
+    @param labels - List[String]. A list of valid pyplot line labels
+    @param scores - List[List[Double]]. A list of a season (162 games) worth of elos
+    """
     games = range(1, 163)
 
     plots = []
 
     for i, score_list in enumerate(scores):
         # I hate this trailing comma notation, but whatever.
-        temp_plot, = plt.plot(games, score_list, color = colors[i])
+        temp_plot, = plt.plot(games, score_list, color=colors[i])
         plots.append(temp_plot)
-
 
     plt.title('Elo ratings through a season')
     plt.xlabel('Games')
     plt.ylabel('Rating')
     plt.legend(plots, labels)
     plt.show()
+
 
 # TODO: Write a function to get the elo list over a season for a given team and formula
 
@@ -131,9 +131,9 @@ def main():
     mlb_ranking_main.print_sorted_by_rating_desc(scaled_elo_teams)
 
     plot_elos_over_time(
-        colors = ['r', 'b', 'g', 'y', 'c', 'm'], 
-        labels = ['score-based-nats', 'basic-nats', 'scaled-nats', 'score-based-braves', 'scaled-braves', 'basic-braves'],
-        scores = [score_nats, basic_nats, scaled_nats, score_braves, basic_braves, scaled_braves])
+        colors=['r', 'b', 'g', 'y', 'c', 'm'],
+        labels=['score-based-nats', 'basic-nats', 'scaled-nats', 'score-based-braves', 'scaled-braves', 'basic-braves'],
+        scores=[score_nats, basic_nats, scaled_nats, score_braves, basic_braves, scaled_braves])
 
 
 if __name__ == '__main__':

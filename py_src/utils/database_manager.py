@@ -1,8 +1,8 @@
-'''
+"""
 We're gonna store this data in a SQLite database so we don't have to read
 from the API for every day every time we want to run something for 2018.
 This should be a very small database, and we'll store it on disk.
-'''
+"""
 
 import datetime
 import sqlite3
@@ -92,17 +92,18 @@ INSERT_TEAM_RATING_STATEMENT = '''INSERT INTO team_ratings VALUES(
 
 CHECK_EXISTING_TABLES_QUERY = """SELECT name FROM sqlite_master WHERE type='table'"""
 
-'''
-Add a list of games to the database. If a game_id exists in the table
-already, don't try to add it again. Doubleheaders should already be
-handled at this point.
 
-@param games: a list of Games
-@param db: the database
-
-return: a List of dates added to the database
-'''
 def add_games_to_db(games, db):
+    """
+    Add a list of games to the database. If a game_id exists in the table
+    already, don't try to add it again. Doubleheaders should already be
+    handled at this point.
+
+    @param games: a list of Games
+    @param db: the database
+
+    return: a List of dates added to the database
+    """
 
     cursor = db.cursor()
 
@@ -114,7 +115,7 @@ def add_games_to_db(games, db):
         try:
             cursor.execute(INSERT_GAME_STATEMENT, vars(game))
             game_date = datetime.date(int(game.year), int(game.month), int(game.day))
-            
+
             if game_date not in dates_added:
                 dates_added[game_date] = 1
         except sqlite3.IntegrityError:
@@ -126,12 +127,12 @@ def add_games_to_db(games, db):
     return [k for k, v in dates_added.iteritems()]
 
 
-'''
-Read in the team_info file, make a table that matches it, and fill that
-table with the contents of the file.
-'''
 def create_and_populate_team_info(filename, db):
-    
+    """
+    Read in the team_info file, make a table that matches it, and fill that
+    table with the contents of the file.
+    """
+
     cursor = db.cursor()
 
     # We should only really run this once, so creating the table here
@@ -159,6 +160,7 @@ def create_and_populate_team_info(filename, db):
     db.commit()
     db.close()
 
+
 def main():
     # Creates or opens the file that holds the database
     print 'Connecting to the SQLite database...',
@@ -172,10 +174,11 @@ def main():
     # cursor.execute(CREATE_GAMES_TABLE)
     # cursor.execute(CREATE_TEAM_RATING_TABLE)
 
-    #Finally it is necessary to commit the changes. 
+    # Finally it is necessary to commit the changes.
     db.commit()
     # When we are done working with the DB we need to close the connection
     db.close()
+
 
 if __name__ == '__main__':
     main()
