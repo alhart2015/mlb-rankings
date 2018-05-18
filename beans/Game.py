@@ -1,4 +1,4 @@
-from py_src.utils import rating_utils, retrosheet_schema, team_name_lookups
+from utils import rating_utils, retrosheet_schema, team_name_lookups
 
 BLANK_GAME_ID = 'blank_game_id'
 GAME_ID_BASE = 'gid_{y}_{m}_{d}_{atc}{asc}_{htc}{hsc}_{dn}'

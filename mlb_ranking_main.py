@@ -3,14 +3,14 @@ The goal is to develop a power rankings for MLB.
 
 Roughly based on ELO? Idk.
 """
-from py_src.beans.Game import game_from_split_row
-from py_src.beans.Team import Team
-
 import argparse
-from py_src.utils import database_manager, rating_utils
-from py_src.utils import stat_scraper
 import datetime
 import sqlite3
+
+from beans.Team import Team
+from beans.Game import game_from_split_row
+from utils import database_manager
+from utils import rating_utils, stat_scraper
 
 OPENING_DAY_2017 = datetime.date(2017, 4, 2)
 OPENING_DAY_2018 = datetime.date(2018, 3, 29)

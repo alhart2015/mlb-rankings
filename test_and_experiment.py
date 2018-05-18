@@ -2,10 +2,10 @@
 This is a space for me to mess around and try things out.
 """
 
-from py_src.beans.Team import Team
+from beans import Team
 
-from py_src import mlb_ranking_main
-from py_src.utils import rating_utils
+import mlb_ranking_main
+from utils import rating_utils
 
 import matplotlib.pyplot as plt
 

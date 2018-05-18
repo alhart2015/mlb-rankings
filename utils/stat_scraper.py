@@ -9,11 +9,12 @@ good outline for all this can be found at
 https://github.com/panzarino/mlbgame
 """
 
-import requests
 from xml.etree import ElementTree
 
-from py_src.beans.Game import Game
+import requests
+
 import team_name_lookups
+from beans.Game import Game
 
 MLB_API_URL = 'http://gd.mlb.com/components/game/mlb/' \
               'year_{0}/month_{1:02d}/day_{2:02d}/'
