@@ -8,7 +8,7 @@ import datetime
 import sqlite3
 
 from beans.Team import Team
-from beans.Game import game_from_split_row
+from beans.Game import Game
 from utils import database_manager
 from utils import rating_utils, stat_scraper
 
@@ -44,7 +44,7 @@ def read_game_data(filename):
             # most of these fields are in quotes. get rid of that
             clean_row = [field.replace('"', '') for field in split_row]
             # convert to Game object
-            parsed_game = game_from_split_row(clean_row)
+            parsed_game = Game.from_split_row(clean_row)
             raw_game_id = parsed_game.calculate_raw_game_id()
             if raw_game_id in game_ids.keys():
                 # we have this game id already so this is a doubleheader. replace

@@ -1,3 +1,4 @@
+from beans.Team import Team
 from utils import rating_utils, retrosheet_schema, team_name_lookups
 
 BLANK_GAME_ID = 'blank_game_id'
@@ -6,81 +7,15 @@ MLB_SPORT_CODE = 'mlb'
 NOT_DOUBLEHEADER = 1
 
 
-def game_from_split_row(split_row):
-    """
-    Constructor when you only want to pass in a split_row. This'll leave
-    game_id blank - we'll calculate that when we insert into the db. We
-    also convert date from the retrosheet format, yyyymmdd, to an easier
-    to handle yyyy-mm-dd format.
-
-    @param split_row - a list of Strings corresponding to one row from the
-                        retrosheet file, split on commas and cleaned of
-                        all the excess quotation marks
-    """
-    raw_home_team = split_row[retrosheet_schema.HOME_TEAM]
-    home_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_home_team]
-    home_team_code = team_name_lookups.MLB_TEAM_TO_CODE[home_team]
-    raw_away_team = split_row[retrosheet_schema.VISITING_TEAM]
-    away_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_away_team]
-    away_team_code = team_name_lookups.MLB_TEAM_TO_CODE[away_team]
-
-    home_score = int(split_row[retrosheet_schema.HOME_TEAM_SCORE])
-    away_score = int(split_row[retrosheet_schema.VISITING_TEAM_SCORE])
-
-    raw_date = split_row[retrosheet_schema.DATE]
-    year, month, day = year_month_day_from_raw(raw_date)
-
-    return Game(
-        home_team=home_team,
-        home_team_code=home_team_code,
-        away_team=away_team,
-        away_team_code=away_team_code,
-        home_score=home_score,
-        away_score=away_score,
-        year=year,
-        month=month,
-        day=day,
-        game_id=BLANK_GAME_ID)
-
-
-def game_from_db_row(row):
-    """
-    Create a Game object from the stuff returned from the games table
-    """
-    return Game(
-        game_id=str(row[0]),
-        year=row[1],
-        month=row[2],
-        day=row[3],
-        home_team=str(row[4]),
-        home_team_code=str(row[5]),
-        away_team=str(row[6]),
-        away_team_code=str(row[7]),
-        home_score=row[8],
-        away_score=row[9]
-    )
-
-
-def year_month_day_from_raw(raw_date):
-    """
-    Take yyyymmdd and return (yyyy, mm, dd)
-    """
-    year = raw_date[:4]
-    month = raw_date[4:6]
-    day = raw_date[6:8]
-
-    return year, month, day
-
-
 class Game(object):
     """Represents a single game in the season"""
 
-    def __init__(self, home_team, away_team, home_score, away_score, year, month, day, game_id, home_team_code,
-                 away_team_code):
+    def __init__(self, home_team: str, away_team: str, home_score: int, away_score: int, year: int, month: int, day:int,
+                 game_id: str, home_team_code: str, away_team_code: str):
         self.home_team = home_team
         self.away_team = away_team
-        self.home_score = int(home_score)
-        self.away_score = int(away_score)
+        self.home_score = home_score
+        self.away_score = away_score
         self.year = year
         self.month = month
         self.day = day
@@ -120,10 +55,10 @@ class Game(object):
         """
         return self.__str__()
 
-    def home_team_won(self):
+    def home_team_won(self) -> bool:
         return self.home_score > self.away_score
 
-    def update_teams(self, home_team, away_team, formula):
+    def update_teams(self, home_team: Team, away_team: Team, formula: int) -> (Team, Team):
         """
         Update the provided teams with the result of the game. Updates
         wins, losses, run differential, and rating for each team according
@@ -159,7 +94,7 @@ class Game(object):
 
         return home_team, away_team
 
-    def calculate_raw_game_id(self):
+    def calculate_raw_game_id(self) -> str:
         """
         Calculate the game_id based on the date. It is VERY IMPORTANT to note
         that this is NOT the actual game_id, since that depends on whether or
@@ -190,6 +125,73 @@ class Game(object):
             htc=home_team_code,
             hsc=MLB_SPORT_CODE,
             dn=NOT_DOUBLEHEADER)
+
+    @classmethod
+    def from_split_row(cls: 'Game', split_row: [str]) -> 'Game':
+        """
+        Constructor when you only want to pass in a split_row. This'll leave
+        game_id blank - we'll calculate that when we insert into the db. We
+        also convert date from the retrosheet format, yyyymmdd, to an easier
+        to handle yyyy-mm-dd format.
+
+        :param split_row: a list of Strings corresponding to one row from the
+                          retrosheet file, split on commas and cleaned of
+                          all the excess quotation marks
+        :return:
+        """
+        raw_home_team = split_row[retrosheet_schema.HOME_TEAM]
+        home_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_home_team]
+        home_team_code = team_name_lookups.MLB_TEAM_TO_CODE[home_team]
+        raw_away_team = split_row[retrosheet_schema.VISITING_TEAM]
+        away_team = team_name_lookups.RETROSHEET_NICKNAMES[raw_away_team]
+        away_team_code = team_name_lookups.MLB_TEAM_TO_CODE[away_team]
+
+        home_score = int(split_row[retrosheet_schema.HOME_TEAM_SCORE])
+        away_score = int(split_row[retrosheet_schema.VISITING_TEAM_SCORE])
+
+        raw_date = split_row[retrosheet_schema.DATE]
+        year, month, day = cls.year_month_day_from_raw(raw_date)
+
+        return cls(
+            home_team=home_team,
+            home_team_code=home_team_code,
+            away_team=away_team,
+            away_team_code=away_team_code,
+            home_score=home_score,
+            away_score=away_score,
+            year=year,
+            month=month,
+            day=day,
+            game_id=BLANK_GAME_ID)
+
+    @classmethod
+    def from_db_row(cls: 'Game', row: [str]) -> 'Game':
+        """
+        Create a Game object from the stuff returned from the games table
+        """
+        return cls(
+            game_id=str(row[0]),
+            year=row[1],
+            month=row[2],
+            day=row[3],
+            home_team=str(row[4]),
+            home_team_code=str(row[5]),
+            away_team=str(row[6]),
+            away_team_code=str(row[7]),
+            home_score=row[8],
+            away_score=row[9]
+        )
+
+    @staticmethod
+    def year_month_day_from_raw(raw_date: str) -> (int, int, int):
+        """
+        Take yyyymmdd and return (yyyy, mm, dd)
+        """
+        year = int(raw_date[:4])
+        month = int(raw_date[4:6])
+        day = int(raw_date[6:8])
+
+        return year, month, day
 
 # TODO: self.__dict__ should work here, same w/ vars(self)
 # '''
