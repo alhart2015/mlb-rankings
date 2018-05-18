@@ -108,18 +108,18 @@ def print_sorted_by_rating_desc(teams):
         reverse = True      # sort in reverse order so highest rating first
     )
     """
-    sorted_teams = sorted(teams.iteritems(), key=lambda (k, v): (v.rating, k), reverse=True)
+    sorted_teams = sorted(teams.iteritems(), key=lambda k, v: (v.rating, k), reverse=True)
 
     # enumerate() is a builtin function that takes a list and returns a list of
     # (i, value) tuples, where i is the index of value in the list. In this case,
     # since sorted_teams is a list of (name, Team) tuples, enumerate gives us a
     # series of (i, (name, Team)) nested tuples. This then prints i and Team.
     for i, tup in enumerate(sorted_teams):
-        print i + 1, tup[1]
+        print(i + 1, tup[1])
 
 
 def print_with_diff(teams_now, teams_start):
-    sorted_teams = sorted(teams_now.iteritems(), key=lambda (k, v): (v.rating, k), reverse=True)
+    sorted_teams = sorted(teams_now.iteritems(), key=lambda k, v: (v.rating, k), reverse=True)
 
     # enumerate() is a builtin function that takes a list and returns a list of
     # (i, value) tuples, where i is the index of value in the list. In this case,
@@ -128,7 +128,7 @@ def print_with_diff(teams_now, teams_start):
     for i, tup in enumerate(sorted_teams):
         team = tup[1]
         start_team = teams_start[team.name]
-        print i + 1, team, team.rating - start_team.rating
+        print(i + 1, team, team.rating - start_team.rating)
 
 
 def regress_to_mean_between_years(teams):
@@ -195,7 +195,7 @@ def fill_current_season_games(end_date, opening_day, thorough_check, db):
                 games = stat_scraper.pull_games_for_day(current_day.year, current_day.month, current_day.day)
                 database_manager.add_games_to_db(games, db)
             else:
-                print 'Found games for {0}, skipping'.format(current_day)
+                print('Found games for {0}, skipping'.format(current_day))
 
 
 def update_ratings(teams, games):
@@ -263,11 +263,11 @@ def create_table_if_not_exists(cursor, table_name, create_table_statement, table
     @param tables_that_exist: the set of table names that exist
     """
     if table_name not in tables_that_exist:
-        print 'No table named {0} found, creating...'.format(table_name)
+        print('No table named {0} found, creating...'.format(table_name))
         cursor.execute(create_table_statement)
-        print 'Created table: {0}'.format(table_name)
+        print('Created table: {0}'.format(table_name))
     else:
-        print 'Table {0} already exists. Skipping.'.format(table_name)
+        print('Table {0} already exists. Skipping.'.format(table_name))
 
 
 def statement_returns_rows(cursor, select_statement):
@@ -334,7 +334,7 @@ def full_run(date, db):
                  populated
     @param db: the name and location of the SQLite database to store this in
     """
-    print 'Running for', date
+    print('Running for', date)
 
     cursor = db.cursor()
 
@@ -365,9 +365,9 @@ def full_run(date, db):
     # Check if the team info table has already been populated. Since team names don't
     # change much, we'll say that if there are any rows in this table, all rows are there.
     if statement_returns_rows(cursor, '''SELECT * FROM {0}'''.format(database_manager.TEAM_INFO_TABLE_NAME)):
-        print 'Team name table is populated. No need to add info.'
+        print('Team name table is populated. No need to add info.')
     else:
-        print 'Adding rows to team_info'
+        print('Adding rows to team_info')
         with open(TEAM_INFO_FILENAME, 'r') as f:
             for row in f:
                 clean_row = row.strip()
@@ -385,12 +385,12 @@ def full_run(date, db):
     dates_added_2017 = []
     if statement_returns_rows(cursor, '''SELECT * FROM {0} WHERE year = 2017'''.format(
             database_manager.GAMES_TABLE_NAME)):
-        print 'Games table populated for 2017. Skipping.'
+        print('Games table populated for 2017. Skipping.')
     else:
-        print 'No games found in games table for 2017. Populating.'
+        print('No games found in games table for 2017. Populating.')
         games_for_2017 = read_game_data(FILENAME_2017)
         dates_added_2017 = database_manager.add_games_to_db(games_for_2017, db)
-        print 'Finished populating 2017 games.'
+        print('Finished populating 2017 games.')
 
     # Check if the games table has already been populated for 2018.
     # Check each day of 2018, populate the missing ones, and keep track of which ones
@@ -401,7 +401,7 @@ def full_run(date, db):
         db=db
     )
     if len(dates_added_2018) == 0:
-        print 'Games table up to date for 2018. 0 rows added.'
+        print('Games table up to date for 2018. 0 rows added.')
 
     # Check if the team rating table has been populated. Update the same set of days
     # that got updated in the games table.
@@ -420,7 +420,7 @@ def full_run(date, db):
 
 
 def print_intro_text():
-    print '''
+    print('''
     Welcome to the MLB Rating Database.
 
     Running mlb_ranking_main.py will create a SQLite database containing
@@ -431,7 +431,7 @@ def print_intro_text():
     
     If no arguments are passed, the program will run through the last full
     day of games completed.
-    '''
+    ''')
 
 
 def main():
@@ -451,13 +451,13 @@ def main():
         help='The location of the SQLite database. Default is {0}'.format(database_manager.DB_LOCATION))
     parsed_args = parser.parse_args()
 
-    print 'Connecting to SQLite DB...',
+    print('Connecting to SQLite DB...', end=' ')
     try:
         db = sqlite3.connect(parsed_args.db_loc)
     except sqlite3.OperationalError:
         raise sqlite3.OperationalError("Unable to open database file: " + parsed_args.db_loc)
     # cursor = db.cursor()
-    print 'Connected'
+    print('Connected')
 
     # default to run for yesterday
     today = datetime.date.today()
@@ -469,8 +469,8 @@ def main():
 
     # as long as the given day is before yesterday, run it. otherwise die
     if (yesterday - date_to_run).days < 0:
-        raise ValueError(
-            """Date provided is too recent. It's either in the future or today, \nand games have not yet been completed for today. Please supply a \ndate in the past.""")
+        raise ValueError("""Date provided is too recent. It's either in the future or today, \nand games have not yet 
+        been completed for today. Please supply a \ndate in the past.""")
 
     full_run(date_to_run, db)
 

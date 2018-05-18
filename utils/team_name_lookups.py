@@ -105,4 +105,4 @@ MLB_CODE_TO_TEAM = {
     'mil': 'Milwaukee Brewers'
 }
 
-MLB_TEAM_TO_CODE = dict((v, k) for k, v in MLB_CODE_TO_TEAM.iteritems())
+MLB_TEAM_TO_CODE = dict((v, k) for k, v in MLB_CODE_TO_TEAM.items())

@@ -110,7 +110,7 @@ def add_games_to_db(games, db):
     # Count the number of games we don't add because of duplicate keys
     games_skipped = 0
     dates_added = {}
-    print 'Adding {0} games'.format(len(games))
+    print('Adding {0} games'.format(len(games)))
     for game in games:
         try:
             cursor.execute(INSERT_GAME_STATEMENT, vars(game))
@@ -121,10 +121,10 @@ def add_games_to_db(games, db):
         except sqlite3.IntegrityError:
             # we've already seen this game_id, skip it
             games_skipped += 1
-    print 'Finished adding {0} games'.format(len(games) - games_skipped)
-    print 'Skipped {0} games'.format(games_skipped)
+    print('Finished adding {0} games'.format(len(games) - games_skipped))
+    print('Skipped {0} games'.format(games_skipped))
 
-    return [k for k, v in dates_added.iteritems()]
+    return [k for k, v in dates_added.items()]
 
 
 def create_and_populate_team_info(filename, db):
@@ -138,11 +138,11 @@ def create_and_populate_team_info(filename, db):
     # We should only really run this once, so creating the table here
     # ensures it'll fail and do nothing if we try to run this again by
     # mistake
-    print 'Creating team_info table'
+    print('Creating team_info table')
     cursor.execute(CREATE_TEAM_INFO_TABLE)
 
     num_rows_added = 0
-    print 'Adding rows to team_info...',
+    print('Adding rows to team_info...', end=' ')
     with open(filename, 'r') as f:
         for row in f:
             clean_row = row.strip()
@@ -155,7 +155,7 @@ def create_and_populate_team_info(filename, db):
                 cursor.execute(INSERT_TEAM_INFO_STATEMENT, split_row)
                 num_rows_added += 1
 
-    print 'Finished adding {0} rows'.format(num_rows_added)
+    print('Finished adding {0} rows'.format(num_rows_added))
 
     db.commit()
     db.close()
@@ -163,9 +163,9 @@ def create_and_populate_team_info(filename, db):
 
 def main():
     # Creates or opens the file that holds the database
-    print 'Connecting to the SQLite database...',
+    print('Connecting to the SQLite database...', end=' ')
     db = sqlite3.connect(DB_LOCATION)
-    print 'Connected'
+    print('Connected')
 
     # In order to make any operation with the database we need to 
     # get a cursor object and pass the SQL statements to the cursor 
