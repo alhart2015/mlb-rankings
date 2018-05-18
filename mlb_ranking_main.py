@@ -98,7 +98,7 @@ def create_league_from_games(game_data: List[Game]) -> Dict[str, Team]:
     return teams
 
 
-def print_sorted_by_rating_desc(teams: Dict[str: Team]) -> Dict[str: Team]:
+def print_sorted_by_rating_desc(teams: Dict[str, Team]) -> Dict[str, Team]:
     """
     Printing a dictionary sorted by its values is a pain. This does that:
     sorted(                 # python builtin to sort a collection
@@ -199,7 +199,7 @@ def fill_current_season_games(end_date: datetime.date, opening_day: datetime.dat
                 print('Found games for {0}, skipping'.format(current_day))
 
 
-def update_ratings(teams: Dict[str: Team], games: List[Game]) -> Dict[str: Team]:
+def update_ratings(teams: Dict[str, Team], games: List[Game]) -> Dict[str, Team]:
     """
     Update the given teams with the result of the passed games
     """

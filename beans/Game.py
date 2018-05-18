@@ -81,8 +81,8 @@ class Game(object):
                                                          self,
                                                          formula)
             score_diff = self.home_score - self.away_score
-            home_team.run_differential += score_diff
-            away_team.run_differential -= score_diff
+            home_team.run_diff += score_diff
+            away_team.run_diff -= score_diff
         else:
             home_team.losses += 1
             away_team.wins += 1
@@ -91,8 +91,8 @@ class Game(object):
                                                          self,
                                                          formula)
             score_diff = self.away_score - self.home_score
-            home_team.run_differential -= score_diff
-            away_team.run_differential += score_diff
+            home_team.run_diff -= score_diff
+            away_team.run_diff += score_diff
 
         return home_team, away_team
 

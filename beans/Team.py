@@ -59,7 +59,7 @@ class Team(object):
 
         return new_team
 
-    def team_rating_insert_dict(self, team_id: int, rating_type: int, year: int, month: int, day: int) -> Dict[str: Any]:
+    def team_rating_insert_dict(self, team_id: int, rating_type: int, year: int, month: int, day: int) -> Dict[str, Any]:
         """
         Return a dictionary with all fields needed to insert into the team_ratings
         table.

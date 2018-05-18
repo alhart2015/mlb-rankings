@@ -5,7 +5,7 @@ A collection of all of the ways we'll try and calculate ratings.
 # keep track of the formulas we've defined
 from typing import Tuple
 
-from beans.Game import Game
+from beans import Game
 from beans.Team import Team
 
 VANILLA_ELO = 'VANILLA_ELO'
