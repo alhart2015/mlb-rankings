@@ -3,6 +3,11 @@ A collection of all of the ways we'll try and calculate ratings.
 """
 
 # keep track of the formulas we've defined
+from typing import Tuple
+
+from beans.Game import Game
+from beans.Team import Team
+
 VANILLA_ELO = 'VANILLA_ELO'
 SCORE_BASED_ELO = 'SCORE_BASED_ELO'
 SCALED_RATING = 'SCALED_RATING'
@@ -11,7 +16,7 @@ RATING_SYSTEMS = [VANILLA_ELO, SCORE_BASED_ELO, SCALED_RATING]
 BASE_K_VALUE = 2
 
 
-def update(winning_team, losing_team, game, formula):
+def update(winning_team: Team, losing_team: Team, game: Game, formula: int) -> Tuple[Team, Team]:
     """
     Generic function to update a team's rating based on the specified formula.
 
@@ -51,7 +56,7 @@ def update(winning_team, losing_team, game, formula):
     return winning_team, losing_team
 
 
-def generic_elo(winning_team, losing_team, k):
+def generic_elo(winning_team: Team, losing_team: Team, k: int) -> Tuple[Team, Team]:
     """
     For starters we're gonna go with vanilla elo, as presented by
     https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
@@ -79,7 +84,7 @@ def generic_elo(winning_team, losing_team, k):
     return winner_updated_rating, loser_updated_rating
 
 
-def scaled_rating(winning_team, losing_team, game):
+def scaled_rating(winning_team: Team, losing_team: Team, game: Game) -> Tuple[Team, Team]:
     """
     An attempt at a custom rating system. This should scale logarithmically,
     so the following criteria are met:

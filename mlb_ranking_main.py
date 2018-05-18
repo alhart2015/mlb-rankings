@@ -6,6 +6,7 @@ Roughly based on ELO? Idk.
 import argparse
 import datetime
 import sqlite3
+from typing import Dict, List, Set
 
 from beans.Team import Team
 from beans.Game import Game
@@ -24,7 +25,7 @@ FILENAME_2017 = 'data/GL2017.txt'
 RATING_TO_USE = rating_utils.SCALED_RATING
 
 
-def read_game_data(filename):
+def read_game_data(filename: str) -> List[Game]:
     """
     Take the raw game data file, open it, pull out the fields you care about,
     clean it up a bit, and turn those into Game objects
@@ -59,7 +60,7 @@ def read_game_data(filename):
     return all_games
 
 
-def create_league_from_games(game_data):
+def create_league_from_games(game_data: List[Game]) -> Dict[str, Team]:
     """
     Given a list of every single game played, group those into teams and update
     the wins, losses, and rating of the team. Note that shit will get weird if
@@ -97,7 +98,7 @@ def create_league_from_games(game_data):
     return teams
 
 
-def print_sorted_by_rating_desc(teams):
+def print_sorted_by_rating_desc(teams: Dict[str: Team]) -> Dict[str: Team]:
     """
     Printing a dictionary sorted by its values is a pain. This does that:
     sorted(                 # python builtin to sort a collection
@@ -108,7 +109,7 @@ def print_sorted_by_rating_desc(teams):
         reverse = True      # sort in reverse order so highest rating first
     )
     """
-    sorted_teams = sorted(teams.iteritems(), key=lambda k, v: (v.rating, k), reverse=True)
+    sorted_teams = sorted(teams.items(), key=lambda k, v: (v.rating, k), reverse=True)
 
     # enumerate() is a builtin function that takes a list and returns a list of
     # (i, value) tuples, where i is the index of value in the list. In this case,
@@ -118,7 +119,7 @@ def print_sorted_by_rating_desc(teams):
         print(i + 1, tup[1])
 
 
-def print_with_diff(teams_now, teams_start):
+def print_with_diff(teams_now: List[Team], teams_start: List[Team]) -> None:
     sorted_teams = sorted(teams_now.iteritems(), key=lambda k, v: (v.rating, k), reverse=True)
 
     # enumerate() is a builtin function that takes a list and returns a list of
@@ -131,7 +132,7 @@ def print_with_diff(teams_now, teams_start):
         print(i + 1, team, team.rating - start_team.rating)
 
 
-def regress_to_mean_between_years(teams):
+def regress_to_mean_between_years(teams: Dict[str, Team]) -> Dict[str, Team]:
     """
     I'm torn on whether I like automatically regressing to the mean, but 538 does it
     so whatever. This will move every team closer to average (1500) by 20%. This
@@ -139,14 +140,14 @@ def regress_to_mean_between_years(teams):
     """
     regressed_teams = {}
 
-    for (name, team) in teams.iteritems():
+    for (name, team) in teams.items():
         new_team = team.reset_for_new_season()
         regressed_teams[name] = new_team
 
     return regressed_teams
 
 
-def fill_current_season_games(end_date, opening_day, thorough_check, db):
+def fill_current_season_games(end_date: datetime.date, opening_day: datetime.date, thorough_check: bool, db: sqlite3.Connection) -> None:
     """
     We're going to need to run this daily(ish) to keep our ratings up-to-date.
     This function will check every day since the provided opening day and make
@@ -198,7 +199,7 @@ def fill_current_season_games(end_date, opening_day, thorough_check, db):
                 print('Found games for {0}, skipping'.format(current_day))
 
 
-def update_ratings(teams, games):
+def update_ratings(teams: Dict[str: Team], games: List[Game]) -> Dict[str: Team]:
     """
     Update the given teams with the result of the passed games
     """
@@ -213,7 +214,7 @@ def update_ratings(teams, games):
     return teams
 
 
-def fill_table_through_date(end_date, opening_day, db):
+def fill_table_through_date(end_date: datetime.date, opening_day: datetime.date, db: sqlite3.Connection) -> List[datetime.date]:
     """
     This function will check every day since the provided opening day and make
     sure games for that day are in the database. For each day, if there are any
@@ -253,7 +254,7 @@ def fill_table_through_date(end_date, opening_day, db):
     return dates_added
 
 
-def create_table_if_not_exists(cursor, table_name, create_table_statement, tables_that_exist):
+def create_table_if_not_exists(cursor: sqlite3.Cursor, table_name: str, create_table_statement: str, tables_that_exist: Set[str]) -> None:
     """
     Create the supplied table if it doesn't exist. If it does exist, do nothing.
 
@@ -270,7 +271,7 @@ def create_table_if_not_exists(cursor, table_name, create_table_statement, table
         print('Table {0} already exists. Skipping.'.format(table_name))
 
 
-def statement_returns_rows(cursor, select_statement):
+def statement_returns_rows(cursor: sqlite3.Cursor, select_statement: str) -> bool:
     """
     Return true if the result of the select statement has >0 results, false otherwise.
     """
@@ -279,7 +280,7 @@ def statement_returns_rows(cursor, select_statement):
     return one_row is not None
 
 
-def initialize_teams(db):
+def initialize_teams(db: sqlite3.Connection) -> None:
     """
     For each team in the team_info table, check to see if there's an entry in the
     team_ratings table. If there is, do nothing. If there isn't, make a new entry
@@ -292,7 +293,7 @@ def initialize_teams(db):
     second_cursor = db.cursor()
     for (team_id, team_name) in teams:
         for rating_system in rating_utils.RATING_SYSTEMS:
-            average_team = Team(team_name)
+            average_team = Team.new(team_name)
             team_table_fields = average_team.team_rating_insert_dict(
                 team_id,
                 rating_system,
@@ -303,7 +304,7 @@ def initialize_teams(db):
             second_cursor.execute(database_manager.INSERT_TEAM_RATING_STATEMENT, team_table_fields)
 
 
-def update_team_ratings_for_date(date, db):
+def update_team_ratings_for_date(date: datetime.date, db: sqlite3.Connection) -> None:
     """
     For the provided date, look up the games for that date. Then based on the result of
     the game, make a new row in the team_ratings table with the updated rating for each
@@ -317,7 +318,7 @@ def update_team_ratings_for_date(date, db):
     pass
 
 
-def full_run(date, db):
+def full_run(date: datetime.date, db: sqlite3.Connection) -> None:
     """
     This function will get your setup to current from whatever state it's in. Possible
     states are none (you have never run this before) or out of date (you ran this a
@@ -419,7 +420,7 @@ def full_run(date, db):
     db.close()
 
 
-def print_intro_text():
+def print_intro_text() -> None:
     print('''
     Welcome to the MLB Rating Database.
 

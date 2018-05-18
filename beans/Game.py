@@ -1,3 +1,5 @@
+from typing import Tuple, List
+
 from beans.Team import Team
 from utils import rating_utils, retrosheet_schema, team_name_lookups
 
@@ -58,7 +60,7 @@ class Game(object):
     def home_team_won(self) -> bool:
         return self.home_score > self.away_score
 
-    def update_teams(self, home_team: Team, away_team: Team, formula: int) -> (Team, Team):
+    def update_teams(self, home_team: Team, away_team: Team, formula: int) -> Tuple[Team, Team]:
         """
         Update the provided teams with the result of the game. Updates
         wins, losses, run differential, and rating for each team according
@@ -127,7 +129,7 @@ class Game(object):
             dn=NOT_DOUBLEHEADER)
 
     @classmethod
-    def from_split_row(cls: 'Game', split_row: [str]) -> 'Game':
+    def from_split_row(cls, split_row: List[str]) -> 'Game':
         """
         Constructor when you only want to pass in a split_row. This'll leave
         game_id blank - we'll calculate that when we insert into the db. We
@@ -165,7 +167,7 @@ class Game(object):
             game_id=BLANK_GAME_ID)
 
     @classmethod
-    def from_db_row(cls: 'Game', row: [str]) -> 'Game':
+    def from_db_row(cls, row: List[str]) -> 'Game':
         """
         Create a Game object from the stuff returned from the games table
         """
@@ -183,7 +185,7 @@ class Game(object):
         )
 
     @staticmethod
-    def year_month_day_from_raw(raw_date: str) -> (int, int, int):
+    def year_month_day_from_raw(raw_date: str) -> Tuple[int, int, int]:
         """
         Take yyyymmdd and return (yyyy, mm, dd)
         """

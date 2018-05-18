@@ -8,7 +8,7 @@ There's a lot more info that can be pulled, it'll just take work. A
 good outline for all this can be found at
 https://github.com/panzarino/mlbgame
 """
-
+from typing import List
 from xml.etree import ElementTree
 
 import requests
@@ -27,7 +27,7 @@ GAME_TAG = 'game'
 ID_TAG = 'id'
 
 
-def scoreboard_url_for_date(year, month, day):
+def scoreboard_url_for_date(year: int, month: int, day: int) -> str:
     """
     Add the date you want to scrape to the base mlb url and return the
     url for the league-wide scoreboard for the day.
@@ -35,7 +35,7 @@ def scoreboard_url_for_date(year, month, day):
     return MLB_API_URL.format(year, month, day) + GAMEDAY_SCOREBOARD_FILENAME
 
 
-def pull_games_for_day(year, month, day):
+def pull_games_for_day(year: int, month: int, day: int) -> List[Game]:
     api_url = scoreboard_url_for_date(year, month, day)
 
     # Make a request to the mlb GameDay API

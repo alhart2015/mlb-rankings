@@ -6,6 +6,9 @@ This should be a very small database, and we'll store it on disk.
 
 import datetime
 import sqlite3
+from typing import List
+
+from beans.Game import Game
 
 DB_LOCATION = 'data/sqlite_db'
 
@@ -93,7 +96,7 @@ INSERT_TEAM_RATING_STATEMENT = '''INSERT INTO team_ratings VALUES(
 CHECK_EXISTING_TABLES_QUERY = """SELECT name FROM sqlite_master WHERE type='table'"""
 
 
-def add_games_to_db(games, db):
+def add_games_to_db(games: List[Game], db: sqlite3.Connection) -> List[str]:
     """
     Add a list of games to the database. If a game_id exists in the table
     already, don't try to add it again. Doubleheaders should already be
@@ -127,7 +130,7 @@ def add_games_to_db(games, db):
     return [k for k, v in dates_added.items()]
 
 
-def create_and_populate_team_info(filename, db):
+def create_and_populate_team_info(filename: str, db: sqlite3.Connection) -> None:
     """
     Read in the team_info file, make a table that matches it, and fill that
     table with the contents of the file.
@@ -160,25 +163,3 @@ def create_and_populate_team_info(filename, db):
     db.commit()
     db.close()
 
-
-def main():
-    # Creates or opens the file that holds the database
-    print('Connecting to the SQLite database...', end=' ')
-    db = sqlite3.connect(DB_LOCATION)
-    print('Connected')
-
-    # In order to make any operation with the database we need to 
-    # get a cursor object and pass the SQL statements to the cursor 
-    # object to execute them. 
-    cursor = db.cursor()
-    # cursor.execute(CREATE_GAMES_TABLE)
-    # cursor.execute(CREATE_TEAM_RATING_TABLE)
-
-    # Finally it is necessary to commit the changes.
-    db.commit()
-    # When we are done working with the DB we need to close the connection
-    db.close()
-
-
-if __name__ == '__main__':
-    main()

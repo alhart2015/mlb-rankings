@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 AVERAGE_RATING = 1500.0
 REGRESSION_FACTOR = 0.8
 
@@ -11,17 +13,6 @@ class Team(object):
         self.losses = losses
         self.rating = rating
         self.run_diff = run_diff
-
-    def __init__(self, name):
-        """
-        Constructor if we want to make a new, never-before-seen Team with no
-        prior record or rating history
-        """
-        self.name = name
-        self.wins = 0
-        self.losses = 0
-        self.rating = AVERAGE_RATING
-        self.run_diff = 0
 
     def __str__(self):
         """See Game.py for an explanation of why we do this"""
@@ -37,7 +28,7 @@ class Team(object):
         """See Game.py for an explanation of why we do this"""
         return self.__str__()
 
-    def transform_rating(self):
+    def transform_rating(self) -> float:
         """
         Transform the rating for use in the elo calculation
         """
@@ -47,7 +38,7 @@ class Team(object):
         # and things get bad
         return pow(10.0, self.rating / 400.0)
 
-    def reset_for_new_season(self):
+    def reset_for_new_season(self) -> 'Team':
         """
         As long as a new season's ratings are based on last season's results, we'll
         need to reset wins, losses, and run differential for the new season, and
@@ -68,7 +59,7 @@ class Team(object):
 
         return new_team
 
-    def team_rating_insert_dict(self, team_id, rating_type, year, month, day):
+    def team_rating_insert_dict(self, team_id: int, rating_type: int, year: int, month: int, day: int) -> Dict[str: Any]:
         """
         Return a dictionary with all fields needed to insert into the team_ratings
         table.
@@ -80,3 +71,11 @@ class Team(object):
         fields_dict['month'] = month
         fields_dict['day'] = day
         return fields_dict
+
+    @classmethod
+    def new(cls, name: str) -> 'Team':
+        """
+        Constructor if we want to make a new, never-before-seen Team with no
+        prior record or rating history
+        """
+        return cls(name, 0, 0, AVERAGE_RATING, 0)
