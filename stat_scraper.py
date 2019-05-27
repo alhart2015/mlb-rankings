@@ -1,4 +1,4 @@
-"""
+'''
 I've always wanted to write something that scraped stuff from the
 internet daily, so here we go. This'll (hopefully) go to the MLB
 GameDay API and pull stuff down for that day.
@@ -7,17 +7,16 @@ Currently this is able to pull the full scoreboard for any given day.
 There's a lot more info that can be pulled, it'll just take work. A
 good outline for all this can be found at
 https://github.com/panzarino/mlbgame
-"""
-from typing import List
-from xml.etree import ElementTree
+'''
 
 import requests
+from xml.etree import ElementTree
 
-import utils.team_name_lookups as team_name_lookups
-from beans.Game import Game
+from Game import Game
+import team_name_lookups
 
 MLB_API_URL = 'http://gd.mlb.com/components/game/mlb/' \
-              'year_{0}/month_{1:02d}/day_{2:02d}/'
+                'year_{0}/month_{1:02d}/day_{2:02d}/'
 GAMEDAY_SCOREBOARD_FILENAME = 'scoreboard.xml'
 
 TEAM_TAG = 'team'
@@ -26,36 +25,34 @@ RUNS_TAG = 'R'
 GAME_TAG = 'game'
 ID_TAG = 'id'
 
-
-def scoreboard_url_for_date(year: int, month: int, day: int) -> str:
-    """
-    Add the date you want to scrape to the base mlb url and return the
-    url for the league-wide scoreboard for the day.
-    """
+'''
+Add the date you want to scrape to the base mlb url and return the
+url for the league-wide scoreboard for the day.
+'''
+def scoreboard_url_for_date(year, month, day):
     return MLB_API_URL.format(year, month, day) + GAMEDAY_SCOREBOARD_FILENAME
 
-
-def pull_games_for_day(year: int, month: int, day: int) -> List[Game]:
+def pull_games_for_day(year, month, day):
     api_url = scoreboard_url_for_date(year, month, day)
 
     # Make a request to the mlb GameDay API
-    print('Pinging the MLB GameDay scoreboard for {0}-{1}-{2}...'.format(year, month, day))
+    print 'Pinging the MLB GameDay scoreboard for {0}-{1}-{2}...'.format(year, month, day)
     response = requests.get(api_url)
-    print('Response received')
+    print 'Response received'
     # NOTE: If you forget what info is here, print response.content
     # to see what the xml looks like.
 
-    # TODO: Do this better ^. Document what the xml looks like too.
-    # Either in code or a note somewhere.
+    # TODO: Do this better ^. Document what the xml looks like, either
+    # in code or a note somewhere.
 
     # parse the response into an xml tree
-    print('Parsing response XML...', end=' ')
+    print 'Parsing response XML...',
     parsed_scoreboard = ElementTree.fromstring(response.content)
-    print('Response parsed')
-
+    print 'Response parsed'
+    
     games = []
 
-    print('Generating Games...', end=' ')
+    print 'Generating Games...',
     for game_xml_wrapper in parsed_scoreboard:
         found_home_team = False
         for game_info in game_xml_wrapper:
@@ -74,25 +71,32 @@ def pull_games_for_day(year: int, month: int, day: int) -> List[Game]:
                         away_name = game_info.attrib[NAME_TAG]
                         away_score = team_info.attrib[RUNS_TAG]
 
-        # todo maybe check to make sure these fields aren't null?
         home_full_name = team_name_lookups.MLB_CLUB_NAMES[home_name]
         away_full_name = team_name_lookups.MLB_CLUB_NAMES[away_name]
-
-        home_team_code = team_name_lookups.MLB_TEAM_TO_CODE[home_full_name]
-        away_team_code = team_name_lookups.MLB_TEAM_TO_CODE[away_full_name]
-
         game_obj = Game(
-            home_team=home_full_name,
-            away_team=away_full_name,
-            home_score=home_score,
-            away_score=away_score,
-            home_team_code=home_team_code,
-            away_team_code=away_team_code,
-            year=year,
-            month=month,
-            day=day,
-            game_id=game_id)
+            home_team = home_full_name, 
+            away_team = away_full_name, 
+            home_score = home_score, 
+            away_score = away_score,
+            home_team_code = home_name,
+            away_team_code = away_name,
+            year = year,
+            month = month,
+            day = day,
+            game_id = game_id)
         games.append(game_obj)
 
-    print('Finished generating Games')
+    print 'Finished generating Games'
     return games
+
+
+'''
+For testing
+'''
+def main():
+    games = pull_games_for_day(2018, 4, 2)
+    for game in games:
+        print game
+
+if __name__ == '__main__':
+    main()

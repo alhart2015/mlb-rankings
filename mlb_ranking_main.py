@@ -6,6 +6,8 @@ Roughly based on ELO? Idk.
 import argparse
 import datetime
 import sqlite3
+from datetime import date
+from sqlite3 import Cursor
 from typing import Dict, List, Set
 
 from beans.Team import Team
@@ -98,7 +100,7 @@ def create_league_from_games(game_data: List[Game]) -> Dict[str, Team]:
     return teams
 
 
-def print_sorted_by_rating_desc(teams: Dict[str, Team]) -> Dict[str, Team]:
+def print_sorted_by_rating_desc(teams: Dict[str, Team]) -> None:
     """
     Printing a dictionary sorted by its values is a pain. This does that:
     sorted(                 # python builtin to sort a collection
@@ -304,21 +306,56 @@ def initialize_teams(db: sqlite3.Connection) -> None:
             second_cursor.execute(database_manager.INSERT_TEAM_RATING_STATEMENT, team_table_fields)
 
 
-def update_team_ratings_for_date(date: datetime.date, db: sqlite3.Connection) -> None:
+def update_team_ratings_for_date(date_to_run: datetime.date, db: sqlite3.Connection) -> None:
     """
     For the provided date, look up the games for that date. Then based on the result of
     the game, make a new row in the team_ratings table with the updated rating for each
     formula.
-
-    @param date: the date of games you're using to update the rating. it is important to
+    :param date_to_run: the date of games you're using to update the rating. it is important to
                  note that this will be the same as the last date you have a rating for,
                  so you're going to write a row in the team_ratings database for the next
                  day
+    :param db: the database connection object
+
     """
-    pass
+    cursor = db.cursor()
+
+    year = date_to_run.year
+    month = date_to_run.month
+    day = date_to_run.day
+
+    # fields_we_need = {
+    #     'home_team_code': 0,
+    #     'away_team_code': 1,
+    #     'home_score': 2,
+    #     'away_score': 3
+    # }
+    #
+    # games_for_date = cursor.execute('''
+    #     SELECT {htc}, {atc}, {hts}, {ats}
+    #     FROM games
+    #     WHERE year = {y} AND month = {m} AND day = {d}
+    #     '''.format(htc='home_team_code', atc='away_team_code', hts='home_score', ats='away_score',
+    #                y=year, m=month, d=day
+    #                )
+    # )
+
+    results_for_date = cursor.execute('''
+        SELECT 
+    ''')
+
+    for game in games_for_date:
+        print(game, type(game))
+        # home_team_code = game[fields_we_need['home_team_code']]  # TODO this way of reading the schema is HORRIBLE
+        # away_team_code = game[fields_we_need['away_team_code']]
+        # home_team_score = game[fields_we_need['home_score']]
+        # away_team_score = game[fields_we_need['away_score']]
+        #
+        # home_team_rating_for_date = cursor.execute('''
+        #     SELECT home_team_code''')
 
 
-def full_run(date: datetime.date, db: sqlite3.Connection) -> None:
+def full_run(date_to_run: datetime.date, db: sqlite3.Connection) -> None:
     """
     This function will get your setup to current from whatever state it's in. Possible
     states are none (you have never run this before) or out of date (you ran this a
@@ -331,17 +368,17 @@ def full_run(date: datetime.date, db: sqlite3.Connection) -> None:
                              further back than opening day, 2017.
         2) Populate the tables with information up until the specified date
 
-    @param date: the date to run for. All data up to and including this date will be
+    @param date_to_run: the date to run for. All data up to and including this date will be
                  populated
     @param db: the name and location of the SQLite database to store this in
     """
-    print('Running for', date)
+    print('Running for', date_to_run)
 
     cursor = db.cursor()
 
     # Check which tables exist
     tables_that_exist_raw = cursor.execute(database_manager.CHECK_EXISTING_TABLES_QUERY)
-    tables_that_exist = {str(row[0]) for row in tables_that_exist_raw}
+    tables_that_exist: Set[str] = {str(row[0]) for row in tables_that_exist_raw}
 
     # Create the ones that don't exist
     create_table_if_not_exists(
@@ -396,8 +433,8 @@ def full_run(date: datetime.date, db: sqlite3.Connection) -> None:
     # Check if the games table has already been populated for 2018.
     # Check each day of 2018, populate the missing ones, and keep track of which ones
     # got updated
-    dates_added_2018 = fill_table_through_date(
-        end_date=date,
+    dates_added_2018: List[datetime.date] = fill_table_through_date(
+        end_date=date_to_run,
         opening_day=OPENING_DAY_2018,
         db=db
     )
@@ -412,9 +449,8 @@ def full_run(date: datetime.date, db: sqlite3.Connection) -> None:
 
         # for each day in the season, get the snapshot of each team's rating and run diff
         pass
-    for date in dates_added_2018:
-        # update_team_ratings_for_date(date)
-        pass
+    for date_added in dates_added_2018:
+        update_team_ratings_for_date(date_added, db)
 
     db.commit()
     db.close()
